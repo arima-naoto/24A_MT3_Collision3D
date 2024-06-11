@@ -15,14 +15,8 @@ public://メンバ関数
 
 	static float cot(float x);
 
-	/// メンバ関数Addの宣言
-	static Vector3 Add(const Vector3& v1, const Vector3& v2);
-
-	/// メンバ関数Subtactの宣言
-	static Vector3 Subtract(const Vector3& v1, const Vector3& v2);
-
-	///メンバ関数Dotの宣言
-	static float Dot(const Vector3& v1, const Vector3& v2);
+	///メンバ関数Lengthの宣言
+	static float Length(const Vector3& v);
 
 	/// 行列の積
 	static Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2);
@@ -60,10 +54,12 @@ public://メンバ関数
 	/// 座標変換
 	static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
-	/// 正規化ベクトル
-	static Vector3 Project(const Vector3& v1, const Vector3& v2);
-
-	/// 最近接点
-	static Vector3 ClosestPoint(const Vector3& point, const Segment& segment);
+	/// <summary>
+	/// 衝突判定
+	/// </summary>
+	/// <param name="s1"></param>
+	/// <param name="s2"></param>
+	/// <returns></returns>
+	static bool IsCollision(const Sphere& s1, const Sphere& s2);
 
 };

@@ -26,6 +26,11 @@ public://メンバ関数
 	void Update();
 
 	/// <summary>
+	/// デバッグテキスト描画メンバ関数
+	/// </summary>
+	void DrawDebugText();
+
+	/// <summary>
 	/// グリッド線描画メンバ関数
 	/// </summary>
 	/// <param name="viewProjectionMatrix">ビュープロジェクション行列</param>
@@ -42,9 +47,15 @@ public://メンバ関数
 	void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
 	/// <summary>
+	/// 描画処理
+	/// </summary>
+	void Draw();
+
+	/// <summary>
 	/// 処理を一つにまとめるメンバ関数
 	/// </summary>
 	void Main();
+
 
 private://メンバ変数
 
@@ -60,10 +71,10 @@ private://メンバ変数
 	//カメラクラス
 	Camera* camera_;
 
-	//線分構造体
-	Segment segment_;
+	//配列型Sphere構造体
+	Sphere sphere_[2];
 
-	Vector3 point_;
-
+	//スフィアを描画する色
+	uint32_t sphereColor_[2];
 };
 

@@ -9,20 +9,14 @@ float Maths::cot(float x)
 	return 1.0f / tanf(x);
 }
 
-//メンバ関数Addの定義
-Vector3 Maths::Add(const Vector3& v1, const Vector3& v2) {
-	return { v1.x + v2.x,v1.y + v2.y,v1.z + v2.z };
-}
 
-/// メンバ関数Subtractの定義
-Vector3 Maths::Subtract(const Vector3& v1, const Vector3& v2) 
-{
-	return { v1.x - v2.x,v1.y - v2.y,v1.z - v2.z };
-}
+///メンバ関数Lengthの定義
+float Maths::Length(const Vector3& v) {
 
-/// メンバ関数Dotの定義
-float Maths::Dot(const Vector3& v1, const Vector3& v2) {
-	return { v1.x * v2.x + v1.y * v2.y + v1.z * v2.z };
+	float result = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+
+	return result;
+
 }
 
 #pragma region 4x4行列メンバ関数の定義
@@ -257,37 +251,24 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 	return result;
 }
 
-Vector3 Maths::Project(const Vector3& v1, const Vector3& v2) {
-	//v2の長さの二乗を内積を使用して求める
-	float lenghtV2 = Maths::Dot(v2, v2);
-
-	//射影のスカラー係数を計算する
-	float scalar = Maths::Dot(v1, v2) / lenghtV2;
-
-	//射影ベクトルを計算し、戻り値に設定する
-	return v2 * scalar;
-}
-
-Vector3 Maths::ClosestPoint(const Vector3& point, const Segment& segment) 
+bool Maths::IsCollision(const Sphere& s1, const Sphere& s2) 
 {
-	Vector3 toPoint = Maths::Subtract(point, segment.origin);
-
-	float segmentLength = Maths::Dot(segment.diff, segment.diff);
-
-	float t = Maths::Dot(toPoint, segment.diff) / segmentLength; // 点の線分上の投影
-
-	// tを0から1の範囲に制限する
-	t = std::fmax(0.0f, std::fmin(1.0f, t));
-
-	// 最も近い点を計算する
-	Vector3 closestPoint = {
-		segment.origin.x + t * segment.diff.x,
-		segment.origin.y + t * segment.diff.y,
-		segment.origin.z + t * segment.diff.z
+	//二つの級の中心間の距離を求める
+	Vector3 sphereLenght = {
+		s2.center.x - s1.center.x,
+		s2.center.y - s1.center.y ,
+		s2.center.z - s1.center.z
 	};
 
-	return closestPoint;
+	//先程定義した変数をメンバ関数Lengthの中に設定する
+	float distance = Maths::Length(sphereLenght);
+	//半径の合計よりも短ければ衝突
+	if (distance <= (s1.radius + s2.radius)) 
+	{
+		return true;
+	}
 
+	return false;
 }
 
 

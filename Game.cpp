@@ -1,6 +1,7 @@
 #include "Game.h"
 #include <Novice.h>
 #include <imgui.h>
+#define GRAY 0xAAAAAAFF //色を作成
 
 /// <summary>
 /// 初期化処理
@@ -29,12 +30,20 @@ Game::Game()
 	//カメラクラスのインスタンスを作成
 	camera_ = new Camera(cameraAffine_);
 
-	segment_ = {
-		{-2.0f,-1.0f,0.0f}, //始点
-		{ 3.0f, 2.0f,2.0f}, //終点への差分ベクトル
+	sphere_[0] = {
+		{0.0f,0.0f,0.0f},
+		0.6f
 	};
 
-	point_ = { -1.5f,0.6f,0.6f };
+	sphere_[1] = {
+		{0.8f,0.0f,1.0f},
+		0.4f
+	};
+
+	///スフィアを描画する色
+	for (uint32_t i = 0; i < 2; i++) {
+		sphereColor_[i] = WHITE;
+	}
 
 #pragma endregion
 }
@@ -52,6 +61,7 @@ Game::~Game()
 /// </summary>
 void Game::Update() 
 {
+	
 #pragma region レンダリングパイプラインの作成
 
 	//ワールド行列
@@ -73,6 +83,35 @@ void Game::Update()
 	camera_->MakeViewportMatrix();
 
 #pragma endregion
+
+#pragma region 球体の衝突判定
+
+	if (Maths::IsCollision(sphere_[0], sphere_[1]))
+	{
+		//衝突していればcolorを赤に変える
+		sphereColor_[0] = RED;
+	}
+	else {
+		//衝突していなければcolorを白に変える
+		sphereColor_[0] = WHITE;
+	}
+
+#pragma endregion
+
+}
+
+/// <summary>
+/// デバッグテキストの描画
+/// </summary>
+void Game::DrawDebugText() 
+{
+	///デバッグテキストの描画
+	ImGui::Begin("DebugWindow");
+	ImGui::DragFloat3("sphere[0] center", &sphere_[0].center.x, 0.01f);
+	ImGui::DragFloat("sphere[0] radius", &sphere_[0].radius, 0.01f);
+	ImGui::DragFloat3("sphere[1] center", &sphere_[1].center.x, 0.01f);
+	ImGui::DragFloat("sphere[1] radius", &sphere_[1].radius, 0.01f);
+	ImGui::End();
 }
 
 /// <summary>
@@ -172,6 +211,26 @@ void Game::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatri
 }
 
 /// <summary>
+/// 描画処理(これまで定義した描画処理をDraw関数の中で呼び出す)
+/// </summary>
+void Game::Draw() 
+{
+
+	uint32_t gridColor = GRAY;
+
+	//デバッグテキストの描画
+	Game::DrawDebugText();
+
+	//グリッド線を描画
+	Game::DrawGrid(world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
+
+	//球体を描画
+	Game::DrawSphere(sphere_[0], world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor_[0]);
+	Game::DrawSphere(sphere_[1], world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor_[1]);
+
+}
+
+/// <summary>
 /// Main関数で処理を一つにまとめる
 /// </summary>
 void Game::Main() 
@@ -180,17 +239,6 @@ void Game::Main()
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
-
-	//グリッド線を描画する色
-	uint32_t gridColor_ = 0xAAAAAAFF;
-
-	//球体を描画する色
-	uint32_t sphereColor[2];
-	sphereColor[0] = RED;
-	sphereColor[1] = BLACK;
- 
-	Vector3 project = { 0.0f };
-	Vector3 closestPoint = { 0.0f };
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -205,13 +253,8 @@ void Game::Main()
 		/// ↓更新処理ここから
 		///
 
-		//レンダリングパイプラインの処理をまとめたメンバ関数Updateを呼び出す
+		//更新の処理をまとめたメンバ関数Updateを呼び出す
 		Game::Update();
-
-		///正射影ベクトル
-		project = Maths::Project(Maths::Subtract(point_, segment_.origin), segment_.diff);
-		///最近接点
-		closestPoint = Maths::ClosestPoint(point_, segment_);
 
 		///
 		/// ↑更新処理ここまで
@@ -221,29 +264,8 @@ void Game::Main()
 		/// ↓描画処理ここから
 		///
 
-		//デバッグテキストの描画
-		ImGui::Begin("DebugWindow");
-		ImGui::DragFloat3("Point", &point_.x, 0.01f);
-		ImGui::DragFloat3("Segment Origin", &segment_.origin.x, 0.01f);
-		ImGui::DragFloat3("Segment Diff", &segment_.diff.x, 0.01f);
-		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		ImGui::End();
-
-		//グリッド線の描画
-		Game::DrawGrid(world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor_);
-
-		//線分の始点
-		Vector3 start = Transform(Transform(segment_.origin, world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());
-		//線分の終点
-		Vector3 end = Transform(Transform(Add(segment_.origin, segment_.diff), world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());
-		//線分の描画
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
-
-		Sphere pointSphere = { point_,0.01f };
-		Sphere closestPointSphere = { closestPoint,0.01f };
-		//球体の描画
-		Game::DrawSphere(pointSphere, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor[0]);
-		Game::DrawSphere(closestPointSphere, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor[1]);
+		//描画の処理をまとめたメンバ関数Drawを呼び出す
+		Game::Draw();
 
 		///
 		/// ↑描画処理ここまで
@@ -257,5 +279,4 @@ void Game::Main()
 			break;
 		}
 	}
-
 }
