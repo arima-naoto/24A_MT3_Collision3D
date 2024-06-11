@@ -181,12 +181,6 @@ void Game::Main()
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
-	//スフィア構造体
-	Sphere sphere{
-		{0.0f,0.0f,0.0f},
-		0.5f
-	};
-
 	//グリッド線を描画する色
 	uint32_t gridColor_ = 0xAAAAAAFF;
 
