@@ -11,13 +11,13 @@ float Maths::cot(float x)
 
 //メンバ関数Addの定義
 Vector3 Maths::Add(const Vector3& v1, const Vector3& v2) {
-	return v1 + v2;
+	return { v1.x + v2.x,v1.y + v2.y,v1.z + v2.z };
 }
 
 /// メンバ関数Subtractの定義
 Vector3 Maths::Subtract(const Vector3& v1, const Vector3& v2) 
 {
-	return v1 - v2;
+	return { v1.x - v2.x,v1.y - v2.y,v1.z - v2.z };
 }
 
 /// メンバ関数Dotの定義
