@@ -99,15 +99,18 @@ void Game::SphereIsColllsion() {
 	}
 }
 
-/// カメラ操作
-void Game::CameraOperation(){
+void Game::MoveWheel(){}
+
+void Game::CameraOperator(){
+	Game::MoveWheel();
 }
 
 /// 更新処理
-void Game::Update() 
+void Game::Update()
 {
 	Game::Rendering();
 	Game::SphereIsColllsion();
+	Game::CameraOperator();
 }
 
 /// デバッグテキストの描画
@@ -221,8 +224,8 @@ void Game::Draw()
 	//グリッド線を描画
 	Game::DrawGrid(world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
 
-	//球体を描画
-	Game::DrawSphere(sphere_[0], world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor_[0]);
+	//球体描画
+	Game::DrawSphere(sphere_[0], world_->GetViewProjectionMatrix() , camera_->GetViewportMatrix(), sphereColor_[0]);
 	Game::DrawSphere(sphere_[1], world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor_[1]);
 
 }

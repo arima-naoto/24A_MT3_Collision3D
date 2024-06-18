@@ -25,8 +25,11 @@ public://メンバ関数
 	/// 球体同士の衝突判定
 	void SphereIsColllsion();
 
-	/// カメラ操作メンバ関数
-	void CameraOperation();
+	///	ホイールによる拡大拡縮
+	void MoveWheel();
+
+	///カメラ操作
+	void CameraOperator();
 
 	/// 更新処理
 	void Update();
@@ -66,5 +69,6 @@ private://メンバ変数
 
 	//スフィアを描画する色
 	uint32_t sphereColor_[2];
+
 };
 
