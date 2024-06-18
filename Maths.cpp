@@ -259,10 +259,10 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 
 Vector3 Maths::Project(const Vector3& v1, const Vector3& v2) {
 	//v2の長さの二乗を内積を使用して求める
-	float lenghtV2 = Maths::Dot(v2, v2);
+	float lengthV2 = Maths::Dot(v2, v2);
 
 	//射影のスカラー係数を計算する
-	float scalar = Maths::Dot(v1, v2) / lenghtV2;
+	float scalar = Maths::Dot(v1, v2) / lengthV2;
 
 	//射影ベクトルを計算し、戻り値に設定する
 	return v2 * scalar;
