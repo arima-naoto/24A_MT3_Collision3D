@@ -35,10 +35,10 @@ Camera::~Camera(){}
 /// アフィン行列の作成
 /// </summary>
 /// <param name="affine">アフィン構造体</param>
-void Camera::MakeAffineMatrix(Affine affine) 
+void Camera::MakeAffineMatrix() 
 {
 	//Mathsクラスからメンバ関数AffinnMatrixを呼び出す
-	cameraWorldMatrix_ = Maths::AffineMatrix(affine);
+	cameraWorldMatrix_ = Maths::AffineMatrix(affine_);
 }
 
 /// <summary>
