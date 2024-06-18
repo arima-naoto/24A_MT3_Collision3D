@@ -55,10 +55,10 @@ void Game::Update()
 #pragma region レンダリングパイプラインの作成
 
 	//ワールド行列
-	world_->MakeAffineMatrix();
+	world_->MakeAffineMatrix(worldAffine_);
 
 	//カメラワールド行列
-	camera_->MakeAffineMatrix();
+	camera_->MakeAffineMatrix(cameraAffine_);
 
 	//ビュー行列
 	camera_->MakeViewMatrix();
