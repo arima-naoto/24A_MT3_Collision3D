@@ -10,63 +10,40 @@ class Game : public Maths
 {
 public://メンバ関数
 
-	/// <summary>
 	/// インストラクタ
-	/// </summary>
 	Game();
 
-	/// <summary>
 	/// デストラクタ
-	/// </summary>
 	~Game();
 
 	///ゲームタイトル
 	void Title();
 
-	/// <summary>
 	/// レンダリングパイプライン
-	/// </summary>
 	void Rendering();
 
-	/// <summary>
 	/// 球体同士の衝突判定
-	/// </summary>
 	void SphereIsColllsion();
 
-	/// <summary>
+	/// カメラ操作メンバ関数
+	void CameraOperation();
+
 	/// 更新処理
-	/// </summary>
 	void Update();
 
-	/// <summary>
 	/// デバッグテキスト描画メンバ関数
-	/// </summary>
 	void DrawDebugText();
 
-	/// <summary>
 	/// グリッド線描画メンバ関数
-	/// </summary>
-	/// <param name="viewProjectionMatrix">ビュープロジェクション行列</param>
-	/// <param name="viewportMatrix">ビューポート行列</param>
 	void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix,uint32_t color);
 
-	/// <summary>
 	/// 球体描画メンバ関数
-	/// </summary>
-	/// <param name="sphere">球体</param>
-	/// <param name="viewProjectionMatrix">ビュープロジェクション行列</param>
-	/// <param name="viewportMatrix">ビューポート行列</param>
-	/// <param name="color">描画する色</param>
 	void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
-	/// <summary>
 	/// 描画処理
-	/// </summary>
 	void Draw();
 
-	/// <summary>
 	/// 処理を一つにまとめるメンバ関数
-	/// </summary>
 	void Main();
 
 

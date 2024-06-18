@@ -8,36 +8,22 @@ class Camera : public Maths
 {
 public://メンバ関数
 
-	/// <summary>
 	/// インストラクタ
-	/// </summary>
-	/// <param name="affine">アフィン構造体</param>
 	Camera(Affine affine);
 
-	/// <summary>
 	/// デストラクタ
-	/// </summary>
 	~Camera();
 
-	/// <summary>
 	/// アフィン行列
-	/// </summary>
-	/// <param name="affine">アフィン構造体</param>
 	void MakeAffineMatrix(Affine affine);
 
-	/// <summary>
 	/// ビュー行列
-	/// </summary>
 	void MakeViewMatrix();
 
-	/// <summary>
 	/// プロジェクション行列
-	/// </summary>
 	void MakeProjectionMatrix();
 
-	/// <summary>
 	/// ビューポート行列
-	/// </summary>
 	void MakeViewportMatrix();
 
 public://メンバ変数のゲッター

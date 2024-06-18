@@ -99,6 +99,10 @@ void Game::SphereIsColllsion() {
 	}
 }
 
+/// カメラ操作
+void Game::CameraOperation(){
+}
+
 /// 更新処理
 void Game::Update() 
 {
