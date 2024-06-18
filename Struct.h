@@ -19,12 +19,3 @@ struct Sphere
 	Vector3 center;
 	float radius;
 };
-
-/// <summary>
-/// 線分構造体
-/// </summary>
-struct Segment 
-{
-	Vector3 origin;
-	Vector3 diff;
-};

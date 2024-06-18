@@ -3,9 +3,7 @@
 #include <imgui.h>
 #define GRAY 0xAAAAAAFF //色を作成
 
-/// <summary>
 /// 初期化処理
-/// </summary>
 Game::Game() 
 {
 #pragma region 定義しなければならない
@@ -48,27 +46,30 @@ Game::Game()
 #pragma endregion
 }
 
-/// <summary>
 /// delete処理
-/// </summary>
 Game::~Game() 
 {
 	delete world_, camera_;
 }
 
-/// <summary>
-/// 更新処理
-/// </summary>
-void Game::Update() 
-{
-	
-#pragma region レンダリングパイプラインの作成
+//ゲームタイトル
+void Game::Title() {
 
+	//ウィンドウバーの名前
+	const char kWindowTitle[] = "GC2A_02_アリマ_ナオト";
+
+	// ライブラリの初期化
+	Novice::Initialize(kWindowTitle, (int)Camera::GetKWindowWidth(), (int)Camera::GetKWindowHeight());
+}
+
+/// レンダリングパイプラインの作成
+void Game::Rendering() 
+{
 	//ワールド行列
-	world_->MakeAffineMatrix();
+	world_->MakeAffineMatrix(worldAffine_);
 
 	//カメラワールド行列
-	camera_->MakeAffineMatrix();
+	camera_->MakeAffineMatrix(cameraAffine_);
 
 	//ビュー行列
 	camera_->MakeViewMatrix();
@@ -81,11 +82,12 @@ void Game::Update()
 
 	//ビューポート行列
 	camera_->MakeViewportMatrix();
+}
 
-#pragma endregion
+/// 球体同士の衝突判定
+void Game::SphereIsColllsion() {
 
-#pragma region 球体の衝突判定
-
+	// Mathsクラスからメンバ関数IsCollisionを呼び出し、衝突判定を行う
 	if (Maths::IsCollision(sphere_[0], sphere_[1]))
 	{
 		//衝突していればcolorを赤に変える
@@ -95,14 +97,16 @@ void Game::Update()
 		//衝突していなければcolorを白に変える
 		sphereColor_[0] = WHITE;
 	}
-
-#pragma endregion
-
 }
 
-/// <summary>
+/// 更新処理
+void Game::Update() 
+{
+	Game::Rendering();
+	Game::SphereIsColllsion();
+}
+
 /// デバッグテキストの描画
-/// </summary>
 void Game::DrawDebugText() 
 {
 	///デバッグテキストの描画
@@ -114,11 +118,7 @@ void Game::DrawDebugText()
 	ImGui::End();
 }
 
-/// <summary>
 /// グリッド描画処理
-/// </summary>
-/// <param name="viewProjectionMatrix">ビュープロジェクション行列</param>
-/// <param name="viewportMatrix">ビューポート行列</param>
 void Game::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix,uint32_t color)
 {
 	const float kGirdHalfWidth = 2.0f;
@@ -156,13 +156,7 @@ void Game::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& view
 	}
 }
 
-/// <summary>
 /// 球体描画処理
-/// </summary>
-/// <param name="sphere">球体</param>
-/// <param name="viewProjectionMatrix">ビュープロジェクション行列</param>
-/// <param name="viewportMatrix">ビューポート行列</param>
-/// <param name="color">描画する色</param>
 void Game::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) 
 {
 	const uint32_t kSubdivision = 10; // 分割数
@@ -210,12 +204,11 @@ void Game::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatri
 	}
 }
 
-/// <summary>
 /// 描画処理(これまで定義した描画処理をDraw関数の中で呼び出す)
-/// </summary>
 void Game::Draw() 
 {
 
+	//グリッドを描画する色
 	uint32_t gridColor = GRAY;
 
 	//デバッグテキストの描画
@@ -230,12 +223,12 @@ void Game::Draw()
 
 }
 
-/// <summary>
 /// Main関数で処理を一つにまとめる
-/// </summary>
 void Game::Main() 
 {
-
+	///メンバ関数Titleを呼び出す
+	Game::Title();
+	
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };

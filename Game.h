@@ -20,6 +20,19 @@ public://メンバ関数
 	/// </summary>
 	~Game();
 
+	///ゲームタイトル
+	void Title();
+
+	/// <summary>
+	/// レンダリングパイプライン
+	/// </summary>
+	void Rendering();
+
+	/// <summary>
+	/// 球体同士の衝突判定
+	/// </summary>
+	void SphereIsColllsion();
+
 	/// <summary>
 	/// 更新処理
 	/// </summary>

@@ -30,10 +30,10 @@ World::~World(){}
 /// アフィン行列を作成する
 /// </summary>
 /// <param name="affine"></param>
-void World::MakeAffineMatrix() 
+void World::MakeAffineMatrix(Affine affine)
 {
 	//Mathsクラスからメンバ関数AffineMatrixを呼び出す
-	worldMatrix_ = Maths::AffineMatrix(affine_);
+	worldMatrix_ = Maths::AffineMatrix(affine);
 }
 
 /// <summary>
