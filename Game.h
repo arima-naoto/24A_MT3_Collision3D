@@ -26,20 +26,8 @@ public://メンバ関数
 	/// 球体同士の衝突判定
 	void SphereIsColllsion();
 
-	///	カメラ拡大縮小メンバ関数
-	void MoveScale();
-
-	/// カメラ回転メンバ関数
-	void MoveRotation(char *keys);
-
-	/// カメラ移動メンバ関数
-	void MoveTranslate(char* keys);
-
-	///カメラ操作
-	void CameraOperator(char *keys);
-
 	/// 更新処理
-	void Update(char *keys);
+	void Update();
 
 	/// デバッグテキスト描画メンバ関数
 	void DrawDebugText();
