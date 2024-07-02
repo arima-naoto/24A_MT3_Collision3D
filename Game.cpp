@@ -120,16 +120,10 @@ void Game::DrawDebugText()
 	//球体
 	ImGui::DragFloat3("sphere center", &sphere_.center.x, 0.01f);
 	ImGui::DragFloat("sphere radius", &sphere_.radius, 0.01f);
-	
 	//平面
 	ImGui::DragFloat3("Plane Normal", &plane_.normal.x, 0.01f);
 	plane_.normal = Maths::Normalize(plane_.normal);
 	ImGui::DragFloat("plane distance", &plane_.distance, 0.01f);
-	
-	//カメラ
-	ImGui::DragFloat3("cameraScale", &cameraAffine_.scale.x, 0.01f);
-	ImGui::DragFloat3("cameraRotate", &cameraAffine_.rotate.x, 0.01f);
-	ImGui::DragFloat3("cameraTranslate", &cameraAffine_.translate.x, 0.01f);
 	ImGui::End();
 }
 
