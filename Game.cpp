@@ -85,100 +85,12 @@ void Game::Rendering()
 	camera_->MakeViewportMatrix();
 }
 
-/// 拡大縮小
-void Game::MoveScale(){
-
-#pragma region 拡大縮小はホイールで行う
-
-	///ホイールスクロール量を取得する
-	int32_t wheel = Novice::GetWheel();
-
-	//ホイールスクロール量が0を一致してなければ
-	if (wheel != 0) {
-		//カメラを拡大拡縮する
-		cameraAffine_.scale.z += float(wheel) / 2048.0f;
-
-	}
-
-	// ホイールスクロール量が0でない場合、またはカメラの大きさZが0.3以下の場合に処理を行う
-	if (wheel != 0 || cameraAffine_.scale.z <= 0.3f) {
-		//カメラの大きさZが0.5以下であるならば
-		if (cameraAffine_.scale.z <= 0.3f) {
-			cameraAffine_.scale.z = 0.3f; // 最小値を設定
-		}
-
-		else {
-			// ホイールスクロール量に基づいてカメラを拡大縮小する
-			cameraAffine_.scale.z += float(wheel) / 2048.0f;
-		}
-	}
-
-#pragma endregion
-}
-
-///回転処理
-void Game::MoveRotation(char *keys) 
-{
-	if (keys[DIK_RIGHT]) {
-		cameraAffine_.rotate -= Vector3(0, rotateSpeed_, 0);
-	}
-
-	if (keys[DIK_LEFT]) {
-		cameraAffine_.rotate += Vector3(0, rotateSpeed_, 0);
-	}
-
-	if (keys[DIK_UP]) {
-		cameraAffine_.rotate += Vector3(rotateSpeed_,0, 0);
-	}
-
-	if (keys[DIK_DOWN]) {
-		cameraAffine_.rotate -= Vector3(rotateSpeed_, 0, 0);
-	}
-}
-
-///移動処理
-void Game::MoveTranslate(char* keys) {
-
-
-	if (keys[DIK_D]) {
-		cameraAffine_.translate -= Vector3(translateSpeed_.x, 0, 0);
-	}
-
-	if (keys[DIK_A]) {
-		cameraAffine_.translate += Vector3(translateSpeed_.x, 0, 0);
-	}
-
-	if (keys[DIK_W]) {
-		cameraAffine_.translate -= Vector3(0, translateSpeed_.y, 0);
-	}
-
-	if (keys[DIK_S]) {
-		cameraAffine_.translate += Vector3(0, translateSpeed_.y, 0);
-	}
-}
-
-///カメラが動く処理
-void Game::CameraOperator(char *keys){
-
-	//拡大拡縮
-	Game::MoveScale();
-
-	//回転処理
-	Game::MoveRotation(keys);
-	
-	//移動処理
-	Game::MoveTranslate(keys);
-}
 
 /// 更新処理
-void Game::Update(char* keys)
+void Game::Update()
 {
 	//レンダリングパイプライン
 	Game::Rendering();
-
-
-	//カメラが動く処理
-	Game::CameraOperator(keys);
 }
 
 /// デバッグテキストの描画
@@ -318,7 +230,7 @@ void Game::Main()
 		///
 
 		//更新の処理をまとめたメンバ関数Updateを呼び出す
-		Game::Update(keys);
+		Game::Update();
 
 		///
 		/// ↑更新処理ここまで

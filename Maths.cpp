@@ -9,12 +9,64 @@ float Maths::cot(float x)
 	return 1.0f / tanf(x);
 }
 
-///メンバ関数Lengthの定義
+///加算
+Vector3 Maths::Add(const Vector3& v1, const Vector3& v2)
+{
+	//加算の計算結果を求める
+	return { v1.x + v2.x,v1.y + v2.y,v1.z + v2.z };;
+}
+
+///乗算
+Vector3 Maths::Multiply(float scalar, const Vector3& v2) {
+
+	//乗算の計算結果を求める
+	return { scalar * v2.x ,scalar * v2.y,scalar * v2.z };
+
+}
+
+///長さ(ノルム)
 float Maths::Length(const Vector3& v) {
 
 	float result = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
 
 	return result;
+
+}
+
+///正規化
+Vector3 Maths::Normalize(const Vector3& v)
+{
+	//正規化を使用して計算結果を求める
+	float length = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+	Vector3 resultNormalize = { v.x,v.y,v.z };
+
+	if (length != 0.0f)
+	{
+		resultNormalize = { v.x / length,v.y / length,v.z / length };
+	}
+	return resultNormalize;
+}
+
+//クロス積
+Vector3 Maths::Cross(const Vector3& v1, const Vector3& v2)
+{
+	//クロス積を求める
+	Vector3 resultCross = {
+		v1.y * v2.z - v1.z * v2.y,
+		v1.z * v2.x - v1.x * v2.z,
+		v1.x * v2.y - v1.y * v2.x
+	};
+
+	return resultCross;
+}
+
+Vector3 Maths::Perpendicular(const Vector3& vector) {
+
+	if (vector.x != 0.0f || vector.y != 0.0f) {
+		return { -vector.y ,vector.x,0.0f };
+	}
+
+	return { 0.0,-vector.z,vector.y };
 
 }
 

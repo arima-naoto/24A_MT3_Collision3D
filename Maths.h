@@ -15,8 +15,22 @@ public://メンバ関数
 
 	static float cot(float x);
 
-	///メンバ関数Lengthの宣言
+	//加算
+	static Vector3 Add(const Vector3& v1, const Vector3& v2);
+
+	///乗算
+	static Vector3 Multiply(float scalar, const Vector3& v2);
+
+	///長さ(ノルム)
 	static float Length(const Vector3& v);
+
+	///正規化
+	static Vector3 Normalize(const Vector3& v);
+
+	///クロス積
+	static Vector3 Cross(const Vector3& v1, const Vector3& v2);
+
+	static Vector3 Perpendicular(const Vector3& vector);
 
 	/// 行列の積
 	static Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2);
@@ -36,7 +50,7 @@ public://メンバ関数
 	/// 回転行列
 	static Matrix4x4 MakeRotateMatrix(const Vector3& radian);
 
-	/// 平行移動行列
+	/// 平行移動行列 
 	static Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
 
 	/// アフィン変換行列
