@@ -15,3 +15,10 @@ struct Sphere
 	Vector3 center;
 	float radius;
 };
+
+///平面構造体
+struct Plane {
+
+	Vector3 normal;//法線
+	float distance;//距離
+};

@@ -250,27 +250,6 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 	return result;
 }
 
-// 衝突判定処理
-bool Maths::IsCollision(const Sphere& s1, const Sphere& s2) 
-{
-	//二つの級の中心間の距離を求める
-	Vector3 sphereLength = {
-		s2.center.x - s1.center.x,
-		s2.center.y - s1.center.y ,
-		s2.center.z - s1.center.z
-	};
-
-	//先程定義した変数をメンバ関数Lengthの中に設定する
-	float distance = Maths::Length(sphereLength);
-	//半径の合計よりも短ければ衝突
-	if (distance <= (s1.radius + s2.radius)) 
-	{
-		return true;
-	}
-
-	return false;
-}
-
 
 
 

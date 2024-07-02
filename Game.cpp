@@ -34,20 +34,14 @@ Game::Game()
 	//カメラクラスのインスタンスを作成
 	camera_ = new Camera(cameraAffine_);
 
-	sphere_[0] = {
-		{0.0f,0.0f,0.0f},
+	sphere_ = {
+		{0.12f,0.0f,0.0f},
 		0.6f
 	};
 
-	sphere_[1] = {
-		{0.8f,0.0f,1.0f},
-		0.4f
-	};
-
 	///スフィアを描画する色
-	for (uint32_t i = 0; i < 2; i++) {
-		sphereColor_[i] = WHITE;
-	}
+	sphereColor_ = WHITE;
+	
 
 
 #pragma endregion
@@ -89,21 +83,6 @@ void Game::Rendering()
 
 	//ビューポート行列
 	camera_->MakeViewportMatrix();
-}
-
-/// 球体同士の衝突判定
-void Game::SphereIsColllsion() {
-
-	// Mathsクラスからメンバ関数IsCollisionを呼び出し、衝突判定を行う
-	if (Maths::IsCollision(sphere_[0], sphere_[1]))
-	{
-		//衝突していればcolorを赤に変える
-		sphereColor_[0] = RED;
-	}
-	else {
-		//衝突していなければcolorを白に変える
-		sphereColor_[0] = WHITE;
-	}
 }
 
 /// 拡大縮小
@@ -197,8 +176,6 @@ void Game::Update(char* keys)
 	//レンダリングパイプライン
 	Game::Rendering();
 
-	//球体同士の衝突判定
-	Game::SphereIsColllsion();
 
 	//カメラが動く処理
 	Game::CameraOperator(keys);
@@ -209,12 +186,8 @@ void Game::DrawDebugText()
 {
 	///デバッグテキストの描画
 	ImGui::Begin("DebugWindow");
-	ImGui::DragFloat3("sphere[0] center", &sphere_[0].center.x, 0.01f);
-	ImGui::DragFloat("sphere[0] radius", &sphere_[0].radius, 0.01f);
-	ImGui::DragFloat3("sphere[1] center", &sphere_[1].center.x, 0.01f);
-	ImGui::DragFloat("sphere[1] radius", &sphere_[1].radius, 0.01f);
-	ImGui::DragFloat3("cameraTranslate", &cameraAffine_.translate.x, 0.01f);
-	ImGui::DragFloat3("cameraRotate", &cameraAffine_.rotate.x, 0.01f);
+	ImGui::DragFloat3("sphere[0] center", &sphere_.center.x, 0.01f);
+	ImGui::DragFloat("sphere[0] radius", &sphere_.radius, 0.01f);
 	ImGui::End();
 }
 
@@ -318,9 +291,7 @@ void Game::Draw()
 	Game::DrawGrid(world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
 
 	//球体描画
-	Game::DrawSphere(sphere_[0], world_->GetViewProjectionMatrix() , camera_->GetViewportMatrix(), sphereColor_[0]);
-	Game::DrawSphere(sphere_[1], world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor_[1]);
-
+	Game::DrawSphere(sphere_, world_->GetViewProjectionMatrix() , camera_->GetViewportMatrix(), sphereColor_);
 }
 
 /// Main関数で処理を一つにまとめる

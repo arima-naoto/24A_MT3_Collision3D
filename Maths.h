@@ -54,7 +54,4 @@ public://メンバ関数
 	/// 座標変換
 	static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
-	/// 衝突判定処理
-	static bool IsCollision(const Sphere& s1, const Sphere& s2);
-
 };

@@ -23,9 +23,6 @@ public://メンバ関数
 	/// レンダリングパイプライン
 	void Rendering();
 
-	/// 球体同士の衝突判定
-	void SphereIsColllsion();
-
 	///	カメラ拡大縮小メンバ関数
 	void MoveScale();
 
@@ -78,10 +75,10 @@ private://メンバ変数
 	Camera* camera_;
 
 	//配列型Sphere構造体
-	Sphere sphere_[2];
+	Sphere sphere_;
 
 	//スフィアを描画する色
-	uint32_t sphereColor_[2];
+	uint32_t sphereColor_;
 
 
 };
