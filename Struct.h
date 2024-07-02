@@ -33,3 +33,11 @@ struct Plane {
 struct Triangle {
 	Vector3 vertices[3];
 };
+
+//軸並行境界箱構造体
+struct AABB {
+
+	Vector3 min;//最小店
+	Vector3 max;//最大店
+
+};

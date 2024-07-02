@@ -82,7 +82,7 @@ public://メンバ関数
 	/// 座標変換
 	static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
-	/// 線分と三角形の衝突判定
-	static bool IsCollision(const Triangle& triangle, const Segment& segment);
+	/// AABB同士の衝突判定
+	static bool IsCollision(const AABB& aabb1, const AABB& aabb2);
 
 };

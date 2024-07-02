@@ -27,19 +27,22 @@ Game::Game()
 
 	//カメラクラスのインスタンスを作成
 	camera_ = new Camera(cameraAffine_);
-	
-	////三角形構造体
-	triangle_.vertices[0] = { -1.0f,0.0f,0.0f };
-	triangle_.vertices[1] = { 0.0f,1.0f,0.0f };
-	triangle_.vertices[2] = { 1.0f,0.0f,0.0f };
 
-	//線分構造体
-	segment_ = {
-		{0.0f,0.5f,-1.0f},//始点
-		{0.0f,0.5f, 2.0f},//終点への差分ベクトル
+	//AABB構造体
+	aabb_[0] = {
+		{-0.5f,-0.5f,-0.5f},
+		{0.0f,0.0f,0.0f},
 	};
 
-	lineColor_ = WHITE;
+	aabb_[1] = {
+		{0.2f,0.2f,0.2f},
+		{1.0f,1.0f,1.0f},
+	};
+
+	//AABBを描画する色
+	for (uint32_t i = 0; i < 2; i++) {
+		aabbColor_[i] = WHITE;
+	}
 
 #pragma endregion
 }
@@ -86,16 +89,16 @@ void Game::Rendering()
 void Game::CheckIsCollision() {
 
 	///Mathsクラスから衝突判定用のメンバ関数を呼び出し、衝突判定を行う
-	if (Maths::IsCollision(triangle_, segment_)) {
+	if (Maths::IsCollision(aabb_[0], aabb_[1])) {
 
-		//衝突していれば,線の色を赤に変える
-		lineColor_ = RED;
+		//衝突していれば、AABBの色を赤に変える
+		aabbColor_[0] = RED;
 
 	}
 	else {
 
-		//衝突してなければ、線の色を白に変える
-		lineColor_ = WHITE;
+		//衝突してなければ、AABBの色を白に変える
+		aabbColor_[0] = WHITE;
 
 	}
 
@@ -118,13 +121,11 @@ void Game::DrawDebugText()
 {
 	///デバッグテキストの描画
 	ImGui::Begin("DebugWindow");
-	//三角形
-	ImGui::DragFloat3("triangle.v0", &triangle_.vertices[0].x, 0.01f);
-	ImGui::DragFloat3("triangle.v1", &triangle_.vertices[1].x, 0.01f);
-	ImGui::DragFloat3("triangle.v2", &triangle_.vertices[2].x, 0.01f);
-	//線
-	ImGui::DragFloat3("segment origin", &segment_.origin.x, 0.01f);
-	ImGui::DragFloat3("segment diff", &segment_.diff.x, 0.01f);
+	//AABB
+	ImGui::DragFloat3("aabb[0].min", &aabb_[0].min.x, 0.01f);
+	ImGui::DragFloat3("aabb[0].max", &aabb_[0].max.x, 0.01f);
+	ImGui::DragFloat3("aabb[1].min", &aabb_[1].min.x, 0.01f);
+	ImGui::DragFloat3("aabb[1].max", &aabb_[1].max.x, 0.01f);
 	//カメラ
 	ImGui::DragFloat3("camera Scale", &cameraAffine_.scale.x, 0.01f);
 	ImGui::DragFloat3("camera Rotate", &cameraAffine_.rotate.x, 0.01f);
@@ -262,31 +263,65 @@ void Game::DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectio
 	);
 }
 
+//AABB描画処理
+void Game::DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	Vector3 vertices[8];
+
+	// AABBを構成する8頂点を計算
+	vertices[0] = { aabb.min.x, aabb.min.y, aabb.min.z };
+	vertices[1] = { aabb.max.x, aabb.min.y, aabb.min.z };
+	vertices[2] = { aabb.min.x, aabb.max.y, aabb.min.z };
+	vertices[3] = { aabb.max.x, aabb.max.y, aabb.min.z };
+	vertices[4] = { aabb.min.x, aabb.min.y, aabb.max.z };
+	vertices[5] = { aabb.max.x, aabb.min.y, aabb.max.z };
+	vertices[6] = { aabb.min.x, aabb.max.y, aabb.max.z };
+	vertices[7] = { aabb.max.x, aabb.max.y, aabb.max.z };
+
+	// 各頂点を変換
+	for (int i = 0; i < 8; ++i) {
+		vertices[i] = Transform(vertices[i], viewProjectionMatrix);
+		vertices[i] = Transform(vertices[i], viewportMatrix);
+	}
+
+	// 変換後の頂点をスクリーン座標に変換
+	int screenVertices[8][2];
+	for (int i = 0; i < 8; ++i) {
+		screenVertices[i][0] = static_cast<int>(vertices[i].x);
+		screenVertices[i][1] = static_cast<int>(vertices[i].y);
+	}
+
+	// AABBを構成する12のエッジを描画
+	Novice::DrawLine(screenVertices[0][0], screenVertices[0][1], screenVertices[1][0], screenVertices[1][1], color);
+	Novice::DrawLine(screenVertices[0][0], screenVertices[0][1], screenVertices[2][0], screenVertices[2][1], color);
+	Novice::DrawLine(screenVertices[0][0], screenVertices[0][1], screenVertices[4][0], screenVertices[4][1], color);
+	Novice::DrawLine(screenVertices[1][0], screenVertices[1][1], screenVertices[3][0], screenVertices[3][1], color);
+	Novice::DrawLine(screenVertices[1][0], screenVertices[1][1], screenVertices[5][0], screenVertices[5][1], color);
+	Novice::DrawLine(screenVertices[2][0], screenVertices[2][1], screenVertices[3][0], screenVertices[3][1], color);
+	Novice::DrawLine(screenVertices[2][0], screenVertices[2][1], screenVertices[6][0], screenVertices[6][1], color);
+	Novice::DrawLine(screenVertices[3][0], screenVertices[3][1], screenVertices[7][0], screenVertices[7][1], color);
+	Novice::DrawLine(screenVertices[4][0], screenVertices[4][1], screenVertices[5][0], screenVertices[5][1], color);
+	Novice::DrawLine(screenVertices[4][0], screenVertices[4][1], screenVertices[6][0], screenVertices[6][1], color);
+	Novice::DrawLine(screenVertices[5][0], screenVertices[5][1], screenVertices[7][0], screenVertices[7][1], color);
+	Novice::DrawLine(screenVertices[6][0], screenVertices[6][1], screenVertices[7][0], screenVertices[7][1], color);
+}
+
+
 /// 描画処理(これまで定義した描画処理をDraw関数の中で呼び出す)
 void Game::Draw() 
 {
+	Game::DrawDebugText();
 
 	//グリッドを描画する色
 	uint32_t gridColor = GRAY;
-	uint32_t triangleColor = WHITE;
 
-	//デバッグテキストの描画
-	Game::DrawDebugText();
-
-	//グリッド線を描画
+	//グリッド線を描画する
 	Game::DrawGrid(world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
 
-	//三角形を描画
-	Game::DrawTriangle(triangle_, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), triangleColor);
+	//AABBを描画する
+	Game::DrawAABB(aabb_[0], world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), aabbColor_[0]);
+	Game::DrawAABB(aabb_[1], world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), aabbColor_[1]);
 
-	//線分の始点
-	Vector3 start = Transform(Transform(segment_.origin, world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());
 
-	//線分の終点
-	Vector3 end = Transform(Transform(Add(segment_.origin, segment_.diff), world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());
-
-	//線分の描画
-	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), lineColor_);
 }
 
 #pragma endregion

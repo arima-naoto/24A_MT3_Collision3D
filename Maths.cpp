@@ -320,40 +320,18 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 }
 
 ///線分と三角形の衝突判定
-bool Maths::IsCollision(const Triangle& triangle,const Segment& segment) {
+bool Maths::IsCollision(const AABB& aabb1, const AABB& aabb2) {
 
-	//三角形の頂点
-	Vector3 v0 = triangle.vertices[0];
-	Vector3 v1 = triangle.vertices[1];
-	Vector3 v2 = triangle.vertices[2];
+	//もし衝突していれば
+	if ((aabb1.min.x <= aabb2.max.x && aabb1.max.x >= aabb2.min.x) &&
+		(aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) &&
+		(aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z)) {
 
-	//三角形の辺のベクトルを計算
-	Vector3 v01 = Maths::Subtract(v1, v0);
-	Vector3 v12 = Maths::Subtract(v2, v1);
-	Vector3 v20 = Maths::Subtract(v0, v2);
-
-	//三角形の法線ベクトルを計算
-	Vector3 normal = Maths::Normalize(Maths::Cross(v01, v12));
-
-	//線分の始点と終点のベクトルを計算
-	Vector3 end = Maths::Add(segment.origin, segment.diff);
-	Vector3 v1p = Maths::Subtract(end, v0);
-	Vector3 v2p = Maths::Subtract(end, v1);
-	Vector3 v0p = Maths::Subtract(end, v2);
-
-	//各辺を結んだベクトルと、頂点と衝突点pを結んだベクトルのクロス積を取る
-	Vector3 cross01 = Maths::Cross(v01, v1p);
-	Vector3 cross12 = Maths::Cross(v12, v2p);
-	Vector3 cross20 = Maths::Cross(v20, v0p);
-
-	//全ての小三角形のクロス積と法線が同じ方向を向いていたら衝突
-	if (Maths::Dot(cross01, normal) >= 0.0f &&
-		Maths::Dot(cross12, normal) >= 0.0f &&
-		Maths::Dot(cross20, normal) >= 0.0f) {
-		return true;
+		return true;//戻り値をtrueに設定する
 	}
 
 	return false;
+
 }
 
 

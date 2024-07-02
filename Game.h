@@ -43,6 +43,9 @@ public://メンバ関数
 	///三角形描画メンバ関数
 	void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
+	///AABB描画メンバ関数
+	void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
 	/// 描画処理
 	void Draw();
 
@@ -64,15 +67,11 @@ private://メンバ変数
 	//カメラクラス
 	Camera* camera_;
 
-	////三角形構造体
-	Triangle triangle_;
+	///AABB構造体
+	AABB aabb_[2];
 
-
-	//線分構造体
-	Segment segment_;
-
-	//ラインを描画する色
-	uint32_t lineColor_;
+	///AABBを描画する色
+	uint32_t aabbColor_[2];
 
 
 };
