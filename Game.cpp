@@ -25,6 +25,12 @@ Game::Game()
 		{ 0.0f,1.9f,-6.49f }
 	};
 
+	//回転速度
+	rotateSpeed_ = 0.005f;
+
+	///移動速度
+	translateSpeed_ = { 0.01f,0.01f };
+
 	//カメラクラスのインスタンスを作成
 	camera_ = new Camera(cameraAffine_);
 
@@ -42,6 +48,7 @@ Game::Game()
 	for (uint32_t i = 0; i < 2; i++) {
 		sphereColor_[i] = WHITE;
 	}
+
 
 #pragma endregion
 }
@@ -99,18 +106,102 @@ void Game::SphereIsColllsion() {
 	}
 }
 
-void Game::MoveWheel(){}
+/// 拡大縮小
+void Game::MoveScale(){
 
-void Game::CameraOperator(){
-	Game::MoveWheel();
+#pragma region 拡大縮小はホイールで行う
+
+	///ホイールスクロール量を取得する
+	int32_t wheel = Novice::GetWheel();
+
+	//ホイールスクロール量が0を一致してなければ
+	if (wheel != 0) {
+		//カメラを拡大拡縮する
+		cameraAffine_.scale.z += float(wheel) / 2048.0f;
+
+	}
+
+	// ホイールスクロール量が0でない場合、またはカメラの大きさZが0.3以下の場合に処理を行う
+	if (wheel != 0 || cameraAffine_.scale.z <= 0.3f) {
+		//カメラの大きさZが0.5以下であるならば
+		if (cameraAffine_.scale.z <= 0.3f) {
+			cameraAffine_.scale.z = 0.3f; // 最小値を設定
+		}
+
+		else {
+			// ホイールスクロール量に基づいてカメラを拡大縮小する
+			cameraAffine_.scale.z += float(wheel) / 2048.0f;
+		}
+	}
+
+#pragma endregion
+}
+
+///回転処理
+void Game::MoveRotation(char *keys) 
+{
+	if (keys[DIK_RIGHT]) {
+		cameraAffine_.rotate -= Vector3(0, rotateSpeed_, 0);
+	}
+
+	if (keys[DIK_LEFT]) {
+		cameraAffine_.rotate += Vector3(0, rotateSpeed_, 0);
+	}
+
+	if (keys[DIK_UP]) {
+		cameraAffine_.rotate += Vector3(rotateSpeed_,0, 0);
+	}
+
+	if (keys[DIK_DOWN]) {
+		cameraAffine_.rotate -= Vector3(rotateSpeed_, 0, 0);
+	}
+}
+
+///移動処理
+void Game::MoveTranslate(char* keys) {
+
+
+	if (keys[DIK_D]) {
+		cameraAffine_.translate -= Vector3(translateSpeed_.x, 0, 0);
+	}
+
+	if (keys[DIK_A]) {
+		cameraAffine_.translate += Vector3(translateSpeed_.x, 0, 0);
+	}
+
+	if (keys[DIK_W]) {
+		cameraAffine_.translate -= Vector3(0, translateSpeed_.y, 0);
+	}
+
+	if (keys[DIK_S]) {
+		cameraAffine_.translate += Vector3(0, translateSpeed_.y, 0);
+	}
+}
+
+///カメラが動く処理
+void Game::CameraOperator(char *keys){
+
+	//拡大拡縮
+	Game::MoveScale();
+
+	//回転処理
+	Game::MoveRotation(keys);
+	
+	//移動処理
+	Game::MoveTranslate(keys);
 }
 
 /// 更新処理
-void Game::Update()
+void Game::Update(char* keys)
 {
+	//レンダリングパイプライン
 	Game::Rendering();
+
+	//球体同士の衝突判定
 	Game::SphereIsColllsion();
-	Game::CameraOperator();
+
+	//カメラが動く処理
+	Game::CameraOperator(keys);
 }
 
 /// デバッグテキストの描画
@@ -122,6 +213,8 @@ void Game::DrawDebugText()
 	ImGui::DragFloat("sphere[0] radius", &sphere_[0].radius, 0.01f);
 	ImGui::DragFloat3("sphere[1] center", &sphere_[1].center.x, 0.01f);
 	ImGui::DragFloat("sphere[1] radius", &sphere_[1].radius, 0.01f);
+	ImGui::DragFloat3("cameraTranslate", &cameraAffine_.translate.x, 0.01f);
+	ImGui::DragFloat3("cameraRotate", &cameraAffine_.rotate.x, 0.01f);
 	ImGui::End();
 }
 
@@ -254,7 +347,7 @@ void Game::Main()
 		///
 
 		//更新の処理をまとめたメンバ関数Updateを呼び出す
-		Game::Update();
+		Game::Update(keys);
 
 		///
 		/// ↑更新処理ここまで

@@ -2,6 +2,7 @@
 #include "World.h"
 #include "Camera.h"
 #include "Maths.h"
+#include "Vector2.h"
 
 /// <summary>
 /// Mathsクラスを継承したGameクラスを作成
@@ -25,14 +26,20 @@ public://メンバ関数
 	/// 球体同士の衝突判定
 	void SphereIsColllsion();
 
-	///	ホイールによる拡大拡縮
-	void MoveWheel();
+	///	カメラ拡大縮小メンバ関数
+	void MoveScale();
+
+	/// カメラ回転メンバ関数
+	void MoveRotation(char *keys);
+
+	/// カメラ移動メンバ関数
+	void MoveTranslate(char* keys);
 
 	///カメラ操作
-	void CameraOperator();
+	void CameraOperator(char *keys);
 
 	/// 更新処理
-	void Update();
+	void Update(char *keys);
 
 	/// デバッグテキスト描画メンバ関数
 	void DrawDebugText();
@@ -61,6 +68,12 @@ private://メンバ変数
 	//カメラアフィン
 	Affine cameraAffine_;
 
+	///回転速度
+	float rotateSpeed_;
+
+	//移動速度
+	Vector2 translateSpeed_;
+
 	//カメラクラス
 	Camera* camera_;
 
@@ -69,6 +82,7 @@ private://メンバ変数
 
 	//スフィアを描画する色
 	uint32_t sphereColor_[2];
+
 
 };
 
