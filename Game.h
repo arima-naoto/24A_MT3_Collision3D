@@ -40,6 +40,9 @@ public://メンバ関数
 	///平面描画メンバ関数
 	void DrawPlane(const Plane& plane, Matrix4x4 viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
+	///三角形描画メンバ関数
+	void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
 	/// 描画処理
 	void Draw();
 
@@ -61,15 +64,15 @@ private://メンバ変数
 	//カメラクラス
 	Camera* camera_;
 
-	///平面構造体
-	Plane plane_;
+	////三角形構造体
+	Triangle triangle_;
 
-	//セグメント構造体
+
+	//線分構造体
 	Segment segment_;
 
 	//ラインを描画する色
 	uint32_t lineColor_;
-
 
 
 };

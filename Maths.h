@@ -15,8 +15,15 @@ public://メンバ関数
 
 	static float cot(float x);
 
-	//加算
+	static Vector3 Perpendicular(const Vector3& vector);
+
+#pragma region 計算メンバ関数の宣言
+
+	///加算
 	static Vector3 Add(const Vector3& v1, const Vector3& v2);
+
+	///減算
+	static Vector3 Subtract(const Vector3& v1, const Vector3& v2);
 
 	///乗算
 	static Vector3 Multiply(float scalar, const Vector3& v2);
@@ -33,7 +40,9 @@ public://メンバ関数
 	///クロス積
 	static Vector3 Cross(const Vector3& v1, const Vector3& v2);
 
-	static Vector3 Perpendicular(const Vector3& vector);
+#pragma endregion
+
+#pragma region 4x4行列メンバ関数の宣言
 
 	/// 行列の積
 	static Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2);
@@ -68,10 +77,12 @@ public://メンバ関数
 	/// ビューポート変換行列
 	static Matrix4x4 ViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
 
+#pragma endregion
+
 	/// 座標変換
 	static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
-	/// 線分と平面の衝突判定
-	static bool IsCollision(const Segment &segment, const Plane& plane);
+	/// 線分と三角形の衝突判定
+	static bool IsCollision(const Triangle& triangle, const Segment& segment);
 
 };

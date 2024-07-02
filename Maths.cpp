@@ -9,11 +9,30 @@ float Maths::cot(float x)
 	return 1.0f / tanf(x);
 }
 
+Vector3 Maths::Perpendicular(const Vector3& vector) {
+
+	if (vector.x != 0.0f || vector.y != 0.0f) {
+		return { -vector.y ,vector.x,0.0f };
+	}
+
+	return { 0.0,-vector.z,vector.y };
+
+}
+
+#pragma region 計算メンバ関数の定義
+
 ///加算
 Vector3 Maths::Add(const Vector3& v1, const Vector3& v2)
 {
 	//加算の計算結果を求める
 	return { v1.x + v2.x,v1.y + v2.y,v1.z + v2.z };;
+}
+
+///減算
+Vector3 Maths::Subtract(const Vector3& v1, const Vector3& v2)
+{
+	//減算の計算結果を求める
+	return { v1.x - v2.x,v1.y - v2.y,v1.z - v2.z };
 }
 
 ///乗算
@@ -66,15 +85,7 @@ Vector3 Maths::Cross(const Vector3& v1, const Vector3& v2)
 	return resultCross;
 }
 
-Vector3 Maths::Perpendicular(const Vector3& vector) {
-
-	if (vector.x != 0.0f || vector.y != 0.0f) {
-		return { -vector.y ,vector.x,0.0f };
-	}
-
-	return { 0.0,-vector.z,vector.y };
-
-}
+#pragma endregion
 
 #pragma region 4x4行列メンバ関数の定義
 
@@ -308,23 +319,37 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 	return result;
 }
 
-///線分と平面の衝突判定
-bool Maths::IsCollision(const Segment& segment, const Plane& plane) {
+///線分と三角形の衝突判定
+bool Maths::IsCollision(const Triangle& triangle,const Segment& segment) {
 
-	//ます垂直判定を行うために、法線と線の内積を求める
-	float dot = Maths::Dot(plane.normal, segment.diff);
+	//三角形の頂点
+	Vector3 v0 = triangle.vertices[0];
+	Vector3 v1 = triangle.vertices[1];
+	Vector3 v2 = triangle.vertices[2];
 
-	//垂直=平行であるので、衝突しているはずがな
-	if (dot == 0.0f) {
-		return false;
-	}
+	//三角形の辺のベクトルを計算
+	Vector3 v01 = Maths::Subtract(v1, v0);
+	Vector3 v12 = Maths::Subtract(v2, v1);
+	Vector3 v20 = Maths::Subtract(v0, v2);
 
-	//tを求める
-	float t = (plane.distance - Maths::Dot(segment.origin, plane.normal)) / dot;
+	//三角形の法線ベクトルを計算
+	Vector3 normal = Maths::Normalize(Maths::Cross(v01, v12));
 
-	//tの値が線の範囲内であるか判定する
-	if (t >= 0.0f && t <= 1.0f) {
-		//範囲内であれば衝突する
+	//線分の始点と終点のベクトルを計算
+	Vector3 end = Maths::Add(segment.origin, segment.diff);
+	Vector3 v1p = Maths::Subtract(end, v0);
+	Vector3 v2p = Maths::Subtract(end, v1);
+	Vector3 v0p = Maths::Subtract(end, v2);
+
+	//各辺を結んだベクトルと、頂点と衝突点pを結んだベクトルのクロス積を取る
+	Vector3 cross01 = Maths::Cross(v01, v1p);
+	Vector3 cross12 = Maths::Cross(v12, v2p);
+	Vector3 cross20 = Maths::Cross(v20, v0p);
+
+	//全ての小三角形のクロス積と法線が同じ方向を向いていたら衝突
+	if (Maths::Dot(cross01, normal) >= 0.0f &&
+		Maths::Dot(cross12, normal) >= 0.0f &&
+		Maths::Dot(cross20, normal) >= 0.0f) {
 		return true;
 	}
 

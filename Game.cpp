@@ -27,15 +27,16 @@ Game::Game()
 
 	//カメラクラスのインスタンスを作成
 	camera_ = new Camera(cameraAffine_);
-
-	plane_ = {
-		{0.0f,1.0f,0.0f},
-		1.0f
-	};
 	
+	////三角形構造体
+	triangle_.vertices[0] = { -1.0f,0.0f,0.0f };
+	triangle_.vertices[1] = { 0.0f,1.0f,0.0f };
+	triangle_.vertices[2] = { 1.0f,0.0f,0.0f };
+
+	//線分構造体
 	segment_ = {
-		{-0.45f,0.41f,0.0f},//始点
-		{1.0f,0.58f,0.0f},//終点への差分ベクトル
+		{0.0f,0.5f,-1.0f},//始点
+		{0.0f,0.5f, 2.0f},//終点への差分ベクトル
 	};
 
 	lineColor_ = WHITE;
@@ -84,15 +85,16 @@ void Game::Rendering()
 ///	衝突判定の定義
 void Game::CheckIsCollision() {
 
-	///Mathsクラスから衝突判定用メンバ関数を呼び出し、衝突判定を行う
-	if (Maths::IsCollision(segment_, plane_)) {
+	///Mathsクラスから衝突判定用のメンバ関数を呼び出し、衝突判定を行う
+	if (Maths::IsCollision(triangle_, segment_)) {
 
 		//衝突していれば,線の色を赤に変える
 		lineColor_ = RED;
+
 	}
 	else {
 
-		//衝突していれば、線の色を白に変える
+		//衝突してなければ、線の色を白に変える
 		lineColor_ = WHITE;
 
 	}
@@ -116,10 +118,10 @@ void Game::DrawDebugText()
 {
 	///デバッグテキストの描画
 	ImGui::Begin("DebugWindow");
-	//平面
-	ImGui::DragFloat3("Plane Normal", &plane_.normal.x, 0.01f);
-	plane_.normal = Maths::Normalize(plane_.normal);
-	ImGui::DragFloat("plane distance", &plane_.distance, 0.01f);
+	//三角形
+	ImGui::DragFloat3("triangle.v0", &triangle_.vertices[0].x, 0.01f);
+	ImGui::DragFloat3("triangle.v1", &triangle_.vertices[1].x, 0.01f);
+	ImGui::DragFloat3("triangle.v2", &triangle_.vertices[2].x, 0.01f);
 	//線
 	ImGui::DragFloat3("segment origin", &segment_.origin.x, 0.01f);
 	ImGui::DragFloat3("segment diff", &segment_.diff.x, 0.01f);
@@ -241,13 +243,32 @@ void Game::DrawPlane(const Plane& plane, Matrix4x4 viewProjectionMatrix, const M
 	Novice::DrawLine(int(points[1].x), int(points[1].y), int(points[3].x), int(points[3].y), color);
 }
 
+/// 三角形描画処理
+void Game::DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+
+	//スクリーン座標系の頂点
+	Vector3 screenVertices[3];
+
+	//座標変換
+	for (int32_t i = 0; i < 3; i++) {
+		Vector3 ndcVertex = Maths::Transform(triangle.vertices[i], viewProjectionMatrix);
+		screenVertices[i] = Maths::Transform(ndcVertex, viewportMatrix);
+	}
+
+	//DrawTriangleで座標変換済みの三角形を表示する
+	Novice::DrawTriangle(
+		int(screenVertices[0].x), int(screenVertices[0].y), int(screenVertices[1].x), int(screenVertices[1].y),
+		int(screenVertices[2].x), int(screenVertices[2].y), color, kFillModeWireFrame
+	);
+}
+
 /// 描画処理(これまで定義した描画処理をDraw関数の中で呼び出す)
 void Game::Draw() 
 {
 
 	//グリッドを描画する色
 	uint32_t gridColor = GRAY;
-	uint32_t planeColor = WHITE;
+	uint32_t triangleColor = WHITE;
 
 	//デバッグテキストの描画
 	Game::DrawDebugText();
@@ -255,8 +276,8 @@ void Game::Draw()
 	//グリッド線を描画
 	Game::DrawGrid(world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
 
-	//平面描画
-	Game::DrawPlane(plane_, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), planeColor);
+	//三角形を描画
+	Game::DrawTriangle(triangle_, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), triangleColor);
 
 	//線分の始点
 	Vector3 start = Transform(Transform(segment_.origin, world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());

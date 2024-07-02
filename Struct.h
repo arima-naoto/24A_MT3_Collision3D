@@ -9,18 +9,6 @@ struct Affine
 	Vector3 translate;
 };
 
-//直線構造体
-struct Line {
-	Vector3 origin;//始点
-	Vector3 diff; //終点への差分ベクトル
-};
-
-//半直線構造体
-struct Ray {
-	Vector3 origin;//始点
-	Vector3 diff; //終点への差分ベクトル
-};
-
 ///線分構造体
 struct Segment {
 	Vector3 origin;//始点
@@ -39,4 +27,9 @@ struct Plane {
 
 	Vector3 normal;//法線
 	float distance;//距離
+};
+
+//三角形構造体
+struct Triangle {
+	Vector3 vertices[3];
 };
