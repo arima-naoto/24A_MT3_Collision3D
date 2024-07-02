@@ -2,7 +2,6 @@
 #include "World.h"
 #include "Camera.h"
 #include "Maths.h"
-#include "Vector2.h"
 
 /// <summary>
 /// Mathsクラスを継承したGameクラスを作成
@@ -23,6 +22,9 @@ public://メンバ関数
 	/// レンダリングパイプライン
 	void Rendering();
 
+	///衝突判定メンバ関数
+	void CheckIsCollision();
+
 	/// 更新処理
 	void Update();
 
@@ -34,6 +36,9 @@ public://メンバ関数
 
 	/// 球体描画メンバ関数
 	void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
+	///平面描画メンバ関数
+	void DrawPlane(const Plane& plane, Matrix4x4 viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
 	/// 描画処理
 	void Draw();
@@ -53,21 +58,17 @@ private://メンバ変数
 	//カメラアフィン
 	Affine cameraAffine_;
 
-	///回転速度
-	float rotateSpeed_;
-
-	//移動速度
-	Vector2 translateSpeed_;
-
 	//カメラクラス
 	Camera* camera_;
 
-	//配列型Sphere構造体
+	//Sphere構造体
 	Sphere sphere_;
 
 	//スフィアを描画する色
 	uint32_t sphereColor_;
 
+	///平面構造体
+	Plane plane_;
 
 };
 

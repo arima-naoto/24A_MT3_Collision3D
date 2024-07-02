@@ -24,6 +24,7 @@ Vector3 Maths::Multiply(float scalar, const Vector3& v2) {
 
 }
 
+
 ///長さ(ノルム)
 float Maths::Length(const Vector3& v) {
 
@@ -302,7 +303,28 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 	return result;
 }
 
+///球体と平面の衝突判定
+bool Maths::IsCollision(const Sphere& sphere, const Plane& plane) {
 
+	//球の中心ベクトル
+	Vector3 center = sphere.center;
+
+	//平面の法線ベクトルの正規化
+	Vector3 normalizeNormal = Maths::Normalize(plane.normal);
+
+	//球の中心と平面の間の距離を計算
+	float distance = (normalizeNormal.x * center.x +
+		              normalizeNormal.y * center.y +
+		              normalizeNormal.z * center.z) - plane.distance;
+
+	//符号付き距離の絶対値が球の半径以下であれば衝突している
+	if (fabsf(distance) <= sphere.radius) {
+		return true;
+	}
+
+	return false;
+
+}
 
 
 

@@ -25,12 +25,6 @@ Game::Game()
 		{ 0.0f,1.9f,-6.49f }
 	};
 
-	//回転速度
-	rotateSpeed_ = 0.005f;
-
-	///移動速度
-	translateSpeed_ = { 0.01f,0.01f };
-
 	//カメラクラスのインスタンスを作成
 	camera_ = new Camera(cameraAffine_);
 
@@ -41,6 +35,11 @@ Game::Game()
 
 	///スフィアを描画する色
 	sphereColor_ = WHITE;
+
+	plane_ = {
+		{0.0f,1.0f,0.0f},
+		1.0f
+	};
 	
 
 
@@ -85,21 +84,52 @@ void Game::Rendering()
 	camera_->MakeViewportMatrix();
 }
 
+///	衝突判定の定義
+void Game::CheckIsCollision() {
+
+	//Mathsクラスから衝突判定用のメンバ関数を呼び出し、衝突判定を行う
+	if (Maths::IsCollision(sphere_, plane_)) {
+
+		//衝突していれば球体の色を赤に変える
+		sphereColor_ = RED;
+	}
+	else {
+		//衝突してなければ球体の色を白に変える
+		sphereColor_ = WHITE;
+	}
+
+}
 
 /// 更新処理
 void Game::Update()
 {
 	//レンダリングパイプライン
 	Game::Rendering();
+
+	//球体と平面の衝突判定
+	Game::CheckIsCollision();
 }
+
+#pragma region //描画処理関数の定義
 
 /// デバッグテキストの描画
 void Game::DrawDebugText() 
 {
 	///デバッグテキストの描画
 	ImGui::Begin("DebugWindow");
-	ImGui::DragFloat3("sphere[0] center", &sphere_.center.x, 0.01f);
-	ImGui::DragFloat("sphere[0] radius", &sphere_.radius, 0.01f);
+	//球体
+	ImGui::DragFloat3("sphere center", &sphere_.center.x, 0.01f);
+	ImGui::DragFloat("sphere radius", &sphere_.radius, 0.01f);
+	
+	//平面
+	ImGui::DragFloat3("Plane Normal", &plane_.normal.x, 0.01f);
+	plane_.normal = Maths::Normalize(plane_.normal);
+	ImGui::DragFloat("plane distance", &plane_.distance, 0.01f);
+	
+	//カメラ
+	ImGui::DragFloat3("cameraScale", &cameraAffine_.scale.x, 0.01f);
+	ImGui::DragFloat3("cameraRotate", &cameraAffine_.rotate.x, 0.01f);
+	ImGui::DragFloat3("cameraTranslate", &cameraAffine_.translate.x, 0.01f);
 	ImGui::End();
 }
 
@@ -189,12 +219,38 @@ void Game::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatri
 	}
 }
 
+/// 平面描画処理
+void Game::DrawPlane(const Plane& plane, Matrix4x4 viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+
+	Vector3 center = Maths::Multiply(plane.distance, plane.normal);
+
+	Vector3 perpendiculars[4];
+	perpendiculars[0] = Maths::Normalize(Maths::Perpendicular(plane.normal));
+	perpendiculars[1] = { -perpendiculars[0].x,-perpendiculars[0].y,-perpendiculars[0].z };
+	perpendiculars[2] = Maths::Cross(plane.normal, perpendiculars[0]);
+	perpendiculars[3] = { -perpendiculars[2].x,-perpendiculars[2].y,-perpendiculars[2].z };
+
+	Vector3 points[4];
+	for (int32_t index = 0; index < 4; index++) {
+		Vector3 extend = Maths::Multiply(2.0f, perpendiculars[index]);
+		Vector3 point = Maths::Add(center, extend);
+		points[index] = Transform(Transform(point, viewProjectionMatrix), viewportMatrix);
+	}
+
+	///pointsをそれぞれ結んで、DrawLineで平面を描画する
+	Novice::DrawLine(int(points[0].x), int(points[0].y), int(points[3].x), int(points[3].y), color);
+	Novice::DrawLine(int(points[1].x), int(points[1].y), int(points[2].x), int(points[2].y), color);
+	Novice::DrawLine(int(points[0].x), int(points[0].y), int(points[2].x), int(points[2].y), color);
+	Novice::DrawLine(int(points[1].x), int(points[1].y), int(points[3].x), int(points[3].y), color);
+}
+
 /// 描画処理(これまで定義した描画処理をDraw関数の中で呼び出す)
 void Game::Draw() 
 {
 
 	//グリッドを描画する色
 	uint32_t gridColor = GRAY;
+	uint32_t planeColor = WHITE;
 
 	//デバッグテキストの描画
 	Game::DrawDebugText();
@@ -204,7 +260,12 @@ void Game::Draw()
 
 	//球体描画
 	Game::DrawSphere(sphere_, world_->GetViewProjectionMatrix() , camera_->GetViewportMatrix(), sphereColor_);
+
+	//平面描画
+	Game::DrawPlane(plane_, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), planeColor);
 }
+
+#pragma endregion
 
 /// Main関数で処理を一つにまとめる
 void Game::Main() 
