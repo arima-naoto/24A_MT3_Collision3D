@@ -24,6 +24,11 @@ Vector3 Maths::Multiply(float scalar, const Vector3& v2) {
 
 }
 
+//内積
+float Maths::Dot(const Vector3& v1, const Vector3& v2) {
+	//内積を求める
+	return { v1.x * v2.x + v1.y * v2.y + v1.z * v2.z };
+}
 
 ///長さ(ノルム)
 float Maths::Length(const Vector3& v) {
@@ -303,27 +308,27 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 	return result;
 }
 
-///球体と平面の衝突判定
-bool Maths::IsCollision(const Sphere& sphere, const Plane& plane) {
+///線分と平面の衝突判定
+bool Maths::IsCollision(const Segment& segment, const Plane& plane) {
 
-	//球の中心ベクトル
-	Vector3 center = sphere.center;
+	//ます垂直判定を行うために、法線と線の内積を求める
+	float dot = Maths::Dot(plane.normal, segment.diff);
 
-	//平面の法線ベクトルの正規化
-	Vector3 normalizeNormal = Maths::Normalize(plane.normal);
+	//垂直=平行であるので、衝突しているはずがな
+	if (dot == 0.0f) {
+		return false;
+	}
 
-	//球の中心と平面の間の距離を計算
-	float distance = (normalizeNormal.x * center.x +
-		              normalizeNormal.y * center.y +
-		              normalizeNormal.z * center.z) - plane.distance;
+	//tを求める
+	float t = (plane.distance - Maths::Dot(segment.origin, plane.normal)) / dot;
 
-	//符号付き距離の絶対値が球の半径以下であれば衝突している
-	if (fabsf(distance) <= sphere.radius) {
+	//tの値が線の範囲内であるか判定する
+	if (t >= 0.0f && t <= 1.0f) {
+		//範囲内であれば衝突する
 		return true;
 	}
 
 	return false;
-
 }
 
 

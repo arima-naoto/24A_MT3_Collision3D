@@ -28,20 +28,17 @@ Game::Game()
 	//カメラクラスのインスタンスを作成
 	camera_ = new Camera(cameraAffine_);
 
-	sphere_ = {
-		{0.12f,0.0f,0.0f},
-		0.6f
-	};
-
-	///スフィアを描画する色
-	sphereColor_ = WHITE;
-
 	plane_ = {
 		{0.0f,1.0f,0.0f},
 		1.0f
 	};
 	
+	segment_ = {
+		{-0.45f,0.41f,0.0f},//始点
+		{1.0f,0.58f,0.0f},//終点への差分ベクトル
+	};
 
+	lineColor_ = WHITE;
 
 #pragma endregion
 }
@@ -87,15 +84,17 @@ void Game::Rendering()
 ///	衝突判定の定義
 void Game::CheckIsCollision() {
 
-	//Mathsクラスから衝突判定用のメンバ関数を呼び出し、衝突判定を行う
-	if (Maths::IsCollision(sphere_, plane_)) {
+	///Mathsクラスから衝突判定用メンバ関数を呼び出し、衝突判定を行う
+	if (Maths::IsCollision(segment_, plane_)) {
 
-		//衝突していれば球体の色を赤に変える
-		sphereColor_ = RED;
+		//衝突していれば,線の色を赤に変える
+		lineColor_ = RED;
 	}
 	else {
-		//衝突してなければ球体の色を白に変える
-		sphereColor_ = WHITE;
+
+		//衝突していれば、線の色を白に変える
+		lineColor_ = WHITE;
+
 	}
 
 }
@@ -117,13 +116,17 @@ void Game::DrawDebugText()
 {
 	///デバッグテキストの描画
 	ImGui::Begin("DebugWindow");
-	//球体
-	ImGui::DragFloat3("sphere center", &sphere_.center.x, 0.01f);
-	ImGui::DragFloat("sphere radius", &sphere_.radius, 0.01f);
 	//平面
 	ImGui::DragFloat3("Plane Normal", &plane_.normal.x, 0.01f);
 	plane_.normal = Maths::Normalize(plane_.normal);
 	ImGui::DragFloat("plane distance", &plane_.distance, 0.01f);
+	//線
+	ImGui::DragFloat3("segment origin", &segment_.origin.x, 0.01f);
+	ImGui::DragFloat3("segment diff", &segment_.diff.x, 0.01f);
+	//カメラ
+	ImGui::DragFloat3("camera Scale", &cameraAffine_.scale.x, 0.01f);
+	ImGui::DragFloat3("camera Rotate", &cameraAffine_.rotate.x, 0.01f);
+	ImGui::DragFloat3("camera Translate", &cameraAffine_.translate.x, 0.01f);
 	ImGui::End();
 }
 
@@ -252,11 +255,17 @@ void Game::Draw()
 	//グリッド線を描画
 	Game::DrawGrid(world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
 
-	//球体描画
-	Game::DrawSphere(sphere_, world_->GetViewProjectionMatrix() , camera_->GetViewportMatrix(), sphereColor_);
-
 	//平面描画
 	Game::DrawPlane(plane_, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), planeColor);
+
+	//線分の始点
+	Vector3 start = Transform(Transform(segment_.origin, world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());
+
+	//線分の終点
+	Vector3 end = Transform(Transform(Add(segment_.origin, segment_.diff), world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());
+
+	//線分の描画
+	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), lineColor_);
 }
 
 #pragma endregion

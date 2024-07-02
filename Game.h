@@ -61,14 +61,16 @@ private://メンバ変数
 	//カメラクラス
 	Camera* camera_;
 
-	//Sphere構造体
-	Sphere sphere_;
-
-	//スフィアを描画する色
-	uint32_t sphereColor_;
-
 	///平面構造体
 	Plane plane_;
+
+	//セグメント構造体
+	Segment segment_;
+
+	//ラインを描画する色
+	uint32_t lineColor_;
+
+
 
 };
 

@@ -21,6 +21,9 @@ public://メンバ関数
 	///乗算
 	static Vector3 Multiply(float scalar, const Vector3& v2);
 
+	///内積
+	static float Dot(const Vector3& v1, const Vector3& v2);
+
 	///長さ(ノルム)
 	static float Length(const Vector3& v);
 
@@ -68,7 +71,7 @@ public://メンバ関数
 	/// 座標変換
 	static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
-	/// 球体と平面の衝突判定
-	static bool IsCollision(const Sphere& sphere, const Plane& plane);
+	/// 線分と平面の衝突判定
+	static bool IsCollision(const Segment &segment, const Plane& plane);
 
 };
