@@ -28,21 +28,21 @@ Game::Game()
 	//カメラクラスのインスタンスを作成
 	camera_ = new Camera(cameraAffine_);
 
+	//球体構造体
+	sphere_ = {
+		{1.0f,1.0f,1.0f},
+		1.0f
+	};
+
 	//AABB構造体
-	aabb_[0] = {
+	aabb_ = {
 		{-0.5f,-0.5f,-0.5f},
 		{0.0f,0.0f,0.0f},
 	};
 
-	aabb_[1] = {
-		{0.2f,0.2f,0.2f},
-		{1.0f,1.0f,1.0f},
-	};
-
 	//AABBを描画する色
-	for (uint32_t i = 0; i < 2; i++) {
-		aabbColor_[i] = WHITE;
-	}
+	aabbColor_ = WHITE;
+	
 
 #pragma endregion
 }
@@ -88,18 +88,14 @@ void Game::Rendering()
 ///	衝突判定の定義
 void Game::CheckIsCollision() {
 
-	///Mathsクラスから衝突判定用のメンバ関数を呼び出し、衝突判定を行う
-	if (Maths::IsCollision(aabb_[0], aabb_[1])) {
-
-		//衝突していれば、AABBの色を赤に変える
-		aabbColor_[0] = RED;
-
+	//Mathsクラスから衝突判定用のメンバ関数を呼び出し、衝突判定を行う
+	if (Maths::IsCollision(aabb_, sphere_)) {
+		//衝突していれば,AABBの色を赤に変える
+		aabbColor_ = RED;
 	}
 	else {
-
-		//衝突してなければ、AABBの色を白に変える
-		aabbColor_[0] = WHITE;
-
+		//衝突してなければ,AABBの色を白に変える
+		aabbColor_ = WHITE;
 	}
 
 }
@@ -122,10 +118,11 @@ void Game::DrawDebugText()
 	///デバッグテキストの描画
 	ImGui::Begin("DebugWindow");
 	//AABB
-	ImGui::DragFloat3("aabb[0].min", &aabb_[0].min.x, 0.01f);
-	ImGui::DragFloat3("aabb[0].max", &aabb_[0].max.x, 0.01f);
-	ImGui::DragFloat3("aabb[1].min", &aabb_[1].min.x, 0.01f);
-	ImGui::DragFloat3("aabb[1].max", &aabb_[1].max.x, 0.01f);
+	ImGui::DragFloat3("aabb.min", &aabb_.min.x, 0.01f);
+	ImGui::DragFloat3("aabb.max", &aabb_.max.x, 0.01f);
+	//球体
+	ImGui::DragFloat3("sphere.center", &sphere_.center.x, 0.01f);
+	ImGui::DragFloat("sphere.radius", &sphere_.radius, 0.01f);
 	//カメラ
 	ImGui::DragFloat3("camera Scale", &cameraAffine_.scale.x, 0.01f);
 	ImGui::DragFloat3("camera Rotate", &cameraAffine_.rotate.x, 0.01f);
@@ -313,13 +310,16 @@ void Game::Draw()
 
 	//グリッドを描画する色
 	uint32_t gridColor = GRAY;
+	uint32_t sphereColor = WHITE;
 
 	//グリッド線を描画する
 	Game::DrawGrid(world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
 
+	//球体を描画する
+	Game::DrawSphere(sphere_, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor);
+
 	//AABBを描画する
-	Game::DrawAABB(aabb_[0], world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), aabbColor_[0]);
-	Game::DrawAABB(aabb_[1], world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), aabbColor_[1]);
+	Game::DrawAABB(aabb_, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), aabbColor_);
 
 
 }

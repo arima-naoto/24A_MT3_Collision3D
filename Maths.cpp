@@ -1,6 +1,7 @@
 ﻿#define  NOMINMAX
 #include "Maths.h"
 #include <Novice.h>
+#include <algorithm>
 using namespace std;
 
 // 関数cotの作成
@@ -319,19 +320,26 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 	return result;
 }
 
-///線分と三角形の衝突判定
-bool Maths::IsCollision(const AABB& aabb1, const AABB& aabb2) {
+///AABBと球体の衝突判定
+bool Maths::IsCollision(const AABB& aabb, const Sphere& sphere) {
 
-	//もし衝突していれば
-	if ((aabb1.min.x <= aabb2.max.x && aabb1.max.x >= aabb2.min.x) &&
-		(aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) &&
-		(aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z)) {
+	// 最近接点を求める
+	Vector3 closestPoint;
+	closestPoint.x = std::clamp(sphere.center.x, aabb.min.x, aabb.max.x);
+	closestPoint.y = std::clamp(sphere.center.y, aabb.min.y, aabb.max.y);
+	closestPoint.z = std::clamp(sphere.center.z, aabb.min.z, aabb.max.z);
 
-		return true;//戻り値をtrueに設定する
-	}
+	// 最近接点と球の中心との距離を求める
+	Vector3 difference = {
+		closestPoint.x - sphere.center.x,
+		closestPoint.y - sphere.center.y,
+		closestPoint.z - sphere.center.z
+	};
 
-	return false;
+	float distance = Maths::Length(difference);
 
+	// 距離が半径よりも小さいかどうかを判定
+	return distance <= sphere.radius;
 }
 
 

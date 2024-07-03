@@ -67,11 +67,14 @@ private://メンバ変数
 	//カメラクラス
 	Camera* camera_;
 
+	//球体構造体
+	Sphere sphere_;
+
 	///AABB構造体
-	AABB aabb_[2];
+	AABB aabb_;
 
 	///AABBを描画する色
-	uint32_t aabbColor_[2];
+	uint32_t aabbColor_;
 
 
 };
