@@ -22,6 +22,15 @@ public://メンバ関数
 	/// レンダリングパイプライン
 	void Rendering();
 
+	///カメラの拡大縮小
+	void MoveScale();
+
+	///カメラの回転処理
+	void MoveRotation();
+
+	///カメラを動かす処理
+	void CameraController();
+
 	///衝突判定メンバ関数
 	void CheckIsCollision();
 
@@ -67,15 +76,20 @@ private://メンバ変数
 	//カメラクラス
 	Camera* camera_;
 
-	//球体構造体
-	Sphere sphere_;
-
 	///AABB構造体
 	AABB aabb_;
+
+	//線分構造体
+	Segment segment_;
 
 	///AABBを描画する色
 	uint32_t aabbColor_;
 
+	int prevMouseX_;
+	int prevMouseY_;
+
+	int mouseX_;
+	int mouseY_;
 
 };
 

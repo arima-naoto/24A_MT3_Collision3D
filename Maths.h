@@ -65,8 +65,11 @@ public://メンバ関数
 	/// 平行移動行列 
 	static Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
 
-	/// アフィン変換行列
-	static Matrix4x4 AffineMatrix(const Affine& affine);
+	/// アフィン変換行列(SRT)
+	static Matrix4x4 SRTAffineMatrix(const Affine& affine);
+
+	/// アフィン変換行列(STR)
+	static Matrix4x4 STRAffineMatrix(const Affine& affine);
 
 	/// 逆行列
 	static Matrix4x4 Inverse(const Matrix4x4& m);
@@ -83,6 +86,6 @@ public://メンバ関数
 	static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
 	///AABBと球体の衝突判定
-	static bool IsCollision(const AABB& aabb, const Sphere& sphere);
+	static bool IsCollision(const AABB& aabb, const Segment&segment);
 
 };

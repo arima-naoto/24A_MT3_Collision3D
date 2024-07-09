@@ -10,9 +10,9 @@ Game::Game()
 
 	//ワールドアフィン
 	worldAffine_ = {
-		{1.0f,1.0f,1.0f},
-		{0,0,0},
-		{0,0,0},
+		.scale{1.0f,1.0f,1.0f},
+		.rotate{0,0,0},
+		.translate{0,0,0},
 	};
 
 	//ワールドクラスのインスタンスを作成
@@ -20,29 +20,35 @@ Game::Game()
 
 	//カメラアフィン
 	cameraAffine_ = {
-		{ 1.0f,1.0f,1.0f },
-		{ 0.26f,0.0f,0.0f },
-		{ 0.0f,1.9f,-6.49f }
+		.scale{ 1.0f,1.0f,1.0f },//倍率
+		.rotate{ 0.26f,0.0f,0.0f },//回転
+		.translate{ 0.0f,0.2f,-6.77f }//座標
 	};
 
 	//カメラクラスのインスタンスを作成
 	camera_ = new Camera(cameraAffine_);
 
-	//球体構造体
-	sphere_ = {
-		{1.0f,1.0f,1.0f},
-		1.0f
-	};
-
+	
 	//AABB構造体
 	aabb_ = {
-		{-0.5f,-0.5f,-0.5f},
-		{0.0f,0.0f,0.0f},
+		.min{-0.5f,-0.5f,-0.5f},
+		.max{0.5f,0.5f,0.5f},
+	};
+
+	//線分構造体
+	segment_ = {
+		.origin{-0.7f,0.3f,0.0f},
+		.diff{2.0f,-0.5f,0.0f}
 	};
 
 	//AABBを描画する色
 	aabbColor_ = WHITE;
+
+	prevMouseX_ = 0;
+	prevMouseY_ = 0;
 	
+	mouseX_ = 0;
+	mouseY_ = 0;
 
 #pragma endregion
 }
@@ -85,11 +91,55 @@ void Game::Rendering()
 	camera_->MakeViewportMatrix();
 }
 
+///カメラの拡大縮小処理
+void Game::MoveScale() {
+
+	 int32_t wheel = Novice::GetWheel();
+
+	 if (wheel != 0 ) {
+		 // 現在のカメラ倍率を保持
+		 cameraAffine_.translate.z -= (wheel / 1024.0f);
+	 }
+}
+
+///カメラの回転処理
+void Game::MoveRotation(){
+
+	// 現在のマウス座標を取得
+	Novice::GetMousePosition(&mouseX_, &mouseY_);
+
+	// 右ボタンが押されているときにのみ回転を適用
+	if (Novice::IsPressMouse(1)) {
+		// マウスの移動量を計算
+		int deltaX = mouseX_ - prevMouseX_;
+		int deltaY = mouseY_ - prevMouseY_;
+
+		// カメラの回転を更新
+		cameraAffine_.rotate.x += deltaY * 0.005f;  // マウスのY移動でカメラのX軸回転
+		cameraAffine_.rotate.y += deltaX * 0.005f;  // マウスのX移動でカメラのY軸回転
+	}
+
+	// 現在のマウス座標を次のフレームのために保存
+	prevMouseX_ = mouseX_;
+	prevMouseY_ = mouseY_;
+
+}
+
+///カメラを動かす処理
+void Game::CameraController() {
+
+	///カメラの拡大縮小処理
+	Game::MoveScale();
+
+	///カメラの回転処理
+	Game::MoveRotation();
+}
+
 ///	衝突判定の定義
 void Game::CheckIsCollision() {
 
 	//Mathsクラスから衝突判定用のメンバ関数を呼び出し、衝突判定を行う
-	if (Maths::IsCollision(aabb_, sphere_)) {
+	if (Maths::IsCollision(aabb_, segment_)) {
 		//衝突していれば,AABBの色を赤に変える
 		aabbColor_ = RED;
 	}
@@ -106,8 +156,12 @@ void Game::Update()
 	//レンダリングパイプライン
 	Game::Rendering();
 
-	//球体と平面の衝突判定
+	///カメラを動かす処理
+	Game::CameraController();
+
+	//衝突判定
 	Game::CheckIsCollision();
+
 }
 
 #pragma region //描画処理関数の定義
@@ -120,13 +174,9 @@ void Game::DrawDebugText()
 	//AABB
 	ImGui::DragFloat3("aabb.min", &aabb_.min.x, 0.01f);
 	ImGui::DragFloat3("aabb.max", &aabb_.max.x, 0.01f);
-	//球体
-	ImGui::DragFloat3("sphere.center", &sphere_.center.x, 0.01f);
-	ImGui::DragFloat("sphere.radius", &sphere_.radius, 0.01f);
-	//カメラ
-	ImGui::DragFloat3("camera Scale", &cameraAffine_.scale.x, 0.01f);
-	ImGui::DragFloat3("camera Rotate", &cameraAffine_.rotate.x, 0.01f);
-	ImGui::DragFloat3("camera Translate", &cameraAffine_.translate.x, 0.01f);
+	//線分
+	ImGui::DragFloat3("segment.origin", &segment_.origin.x, 0.01f);
+	ImGui::DragFloat3("segment.diff", &segment_.diff.x, 0.01f);
 	ImGui::End();
 }
 
@@ -302,7 +352,6 @@ void Game::DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, con
 	Novice::DrawLine(screenVertices[6][0], screenVertices[6][1], screenVertices[7][0], screenVertices[7][1], color);
 }
 
-
 /// 描画処理(これまで定義した描画処理をDraw関数の中で呼び出す)
 void Game::Draw() 
 {
@@ -310,17 +359,22 @@ void Game::Draw()
 
 	//グリッドを描画する色
 	uint32_t gridColor = GRAY;
-	uint32_t sphereColor = WHITE;
+	//線分を描画する色
+	uint32_t lineColor = WHITE;
 
 	//グリッド線を描画する
 	Game::DrawGrid(world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
 
-	//球体を描画する
-	Game::DrawSphere(sphere_, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor);
-
 	//AABBを描画する
 	Game::DrawAABB(aabb_, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), aabbColor_);
 
+	//線分の始点
+	Vector3 start = Transform(Transform(segment_.origin, world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());
+	//線分の終点
+	Vector3 end = Transform(Transform(Add(segment_.origin, segment_.diff), world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());
+	//線分の描画
+	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), lineColor);
+	
 
 }
 

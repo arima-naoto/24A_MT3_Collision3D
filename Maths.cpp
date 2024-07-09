@@ -182,11 +182,18 @@ Matrix4x4 Maths::MakeTranslateMatrix(const Vector3& translate)
 	return resultTranslate;
 }
 
-// アフィン変換行列
-Matrix4x4 Maths::AffineMatrix(const Affine&affine)
+// アフィン変換行列(SRT)
+Matrix4x4 Maths::SRTAffineMatrix(const Affine&affine)
 {
 	//行列の積を使用し、拡大縮小行列・回転行列・平行移動行列を結合する
 	return Multiply(Multiply(MakeScaleMatrix(affine.scale),MakeRotateMatrix(affine.rotate)),MakeTranslateMatrix(affine.translate));
+}
+
+///アフィン変換行列(STR)
+Matrix4x4 Maths::STRAffineMatrix(const Affine& affine) {
+
+	return Multiply(Multiply(MakeScaleMatrix(affine.scale), MakeTranslateMatrix(affine.translate)), MakeRotateMatrix(affine.rotate));
+
 }
 
 // 逆行列
@@ -320,26 +327,30 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 	return result;
 }
 
-///AABBと球体の衝突判定
-bool Maths::IsCollision(const AABB& aabb, const Sphere& sphere) {
+///AABBと線分の衝突判定
+bool Maths::IsCollision(const AABB& aabb, const Segment& segment) {
 
-	// 最近接点を求める
-	Vector3 closestPoint;
-	closestPoint.x = std::clamp(sphere.center.x, aabb.min.x, aabb.max.x);
-	closestPoint.y = std::clamp(sphere.center.y, aabb.min.y, aabb.max.y);
-	closestPoint.z = std::clamp(sphere.center.z, aabb.min.z, aabb.max.z);
+	// 各方向の t 値の計算
+	float tNearX = (aabb.min.x - segment.origin.x) / segment.diff.x;
+	float tFarX = (aabb.max.x - segment.origin.x) / segment.diff.x;
+	if (tNearX > tFarX) std::swap(tNearX, tFarX);
 
-	// 最近接点と球の中心との距離を求める
-	Vector3 difference = {
-		closestPoint.x - sphere.center.x,
-		closestPoint.y - sphere.center.y,
-		closestPoint.z - sphere.center.z
-	};
+	float tNearY = (aabb.min.y - segment.origin.y) / segment.diff.y;
+	float tFarY = (aabb.max.y - segment.origin.y) / segment.diff.y;
+	if (tNearY > tFarY) std::swap(tNearY, tFarY);
 
-	float distance = Maths::Length(difference);
+	float tNearZ = (aabb.min.z - segment.origin.z) / segment.diff.z;
+	float tFarZ = (aabb.max.z - segment.origin.z) / segment.diff.z;
+	if (tNearZ > tFarZ) std::swap(tNearZ, tFarZ);
 
-	// 距離が半径よりも小さいかどうかを判定
-	return distance <= sphere.radius;
+	// AABBとの衝突点(貫通点)の t が小さい方
+	float tmin = std::max(std::max(tNearX, tNearY), tNearZ);
+	// AABBとの衝突点(貫通点)の t が大きい方
+	float tmax = std::min(std::min(tFarX, tFarY), tFarZ);
+
+	// tmin が tmax 以下で、かつ tmax が0から1の間にあるかどうかをチェック
+	return (tmin <= tmax) && (tmax >= 0) && (tmin <= 1);
+
 }
 
 

@@ -26,7 +26,7 @@ World::~World(){}
 void World::MakeAffineMatrix(Affine affine)
 {
 	//Mathsクラスからメンバ関数AffineMatrixを呼び出す
-	worldMatrix_ = Maths::AffineMatrix(affine);
+	worldMatrix_ = Maths::SRTAffineMatrix(affine);
 }
 
 /// ビュープロジェクション行列を作成する

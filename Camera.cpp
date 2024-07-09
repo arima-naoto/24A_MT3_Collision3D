@@ -30,7 +30,7 @@ Camera::~Camera(){}
 void Camera::MakeAffineMatrix(Affine affine)
 {
 	//Mathsクラスからメンバ関数AffinnMatrixを呼び出す
-	cameraWorldMatrix_ = Maths::AffineMatrix(affine);
+	cameraWorldMatrix_ = Maths::STRAffineMatrix(affine);
 }
 
 /// ビュー行列の作成
