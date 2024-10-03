@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Matrix4x4.h"
-#include "Vector3.h"
 #include "Struct.h"
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -39,6 +38,8 @@ public://メンバ関数
 
 	///クロス積
 	static Vector3 Cross(const Vector3& v1, const Vector3& v2);
+
+	static Vector3 MultiplyMatrixVector(const Matrix4x4& mat, const Vector3& vec);
 
 #pragma endregion
 
@@ -86,6 +87,10 @@ public://メンバ関数
 	static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
 	///AABBと球体の衝突判定
-	static bool IsCollision(const AABB& aabb, const Segment&segment);
+	static bool IsCollision(const OBB& obb, const Sphere&sphere);
 
 };
+
+Vector3 operator+(const Vector3& v1, const Vector3& v2);
+
+Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2);

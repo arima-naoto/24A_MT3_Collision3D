@@ -15,14 +15,6 @@ public://メンバ関数
 	/// アフィン行列
 	void MakeAffineMatrix(Affine affine);
 
-	/// ワールドビュープロプロジェクション行列
-	void MakeWorldViewProjectionMatrix(const Matrix4x4 &viewMatrix,const Matrix4x4& projectionMatrix);
-
-public:
-
-	/// ビュープロジェクション行列のゲッター
-	Matrix4x4 GetViewProjectionMatrix();
-
 private://メンバ変数
 
 	//アフィン構造体
@@ -31,8 +23,6 @@ private://メンバ変数
 	//ワールド行列
 	Matrix4x4 worldMatrix_;
 
-	//ワールドビュープロジェクション行列
-	Matrix4x4 worldViewprojectioinMatrix_;
 };
 
 

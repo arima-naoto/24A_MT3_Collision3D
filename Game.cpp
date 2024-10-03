@@ -1,6 +1,10 @@
+#define NOMINMAX
 #include "Game.h"
 #include <Novice.h>
 #include <imgui.h>
+
+#include "algorithm"
+
 #define GRAY 0xAAAAAAFF //色を作成
 
 /// 初期化処理
@@ -28,21 +32,20 @@ Game::Game()
 	//カメラクラスのインスタンスを作成
 	camera_ = new Camera(cameraAffine_);
 
-	
-	//AABB構造体
-	aabb_ = {
-		.min{-0.5f,-0.5f,-0.5f},
-		.max{0.5f,0.5f,0.5f},
+	rotate_ = { 0.0f,0.0f,0.0f };
+
+	obb_ = {
+		.center{-1.0f,0.0f,0.0f},
+		.orientations = {{1.0f,0.0f,0.0f},
+						 {0.0f,1.0f,0.0f},
+						 {0.0f,0.0f,1.0f}},
+		.size{0.5f,0.5f,0.5f}
 	};
 
-	//線分構造体
-	segment_ = {
-		.origin{-0.7f,0.3f,0.0f},
-		.diff{2.0f,-0.5f,0.0f}
+	sphere_ = {
+		.center{0,0,0},
+		.radius{0.5f}
 	};
-
-	//AABBを描画する色
-	aabbColor_ = WHITE;
 
 	prevMouseX_ = 0;
 	prevMouseY_ = 0;
@@ -85,7 +88,7 @@ void Game::Rendering()
 	camera_->MakeProjectionMatrix();
 
 	//ワールドビュープロジェクション行列
-	world_->MakeWorldViewProjectionMatrix(camera_->GetViewMatrix(), camera_->GetProjectionMatrix());
+	camera_->CreateViewProjectionMatrix();
 
 	//ビューポート行列
 	camera_->MakeViewportMatrix();
@@ -98,7 +101,9 @@ void Game::MoveScale() {
 
 	 if (wheel != 0 ) {
 		 // 現在のカメラ倍率を保持
-		 cameraAffine_.translate.z -= (wheel / 1024.0f);
+		 cameraAffine_.scale.z -= (wheel / (1024.0f * 2));
+		 cameraAffine_.scale.z = std::clamp(cameraAffine_.scale.z, 0.5f, 1.0f);
+
 	 }
 }
 
@@ -115,8 +120,8 @@ void Game::MoveRotation(){
 		int deltaY = mouseY_ - prevMouseY_;
 
 		// カメラの回転を更新
-		cameraAffine_.rotate.x += deltaY * 0.005f;  // マウスのY移動でカメラのX軸回転
-		cameraAffine_.rotate.y += deltaX * 0.005f;  // マウスのX移動でカメラのY軸回転
+		cameraAffine_.rotate.x += deltaY * 0.0025f;  // マウスのY移動でカメラのX軸回転
+		cameraAffine_.rotate.y += deltaX * 0.0025f;  // マウスのX移動でカメラのY軸回転
 	}
 
 	// 現在のマウス座標を次のフレームのために保存
@@ -138,16 +143,6 @@ void Game::CameraController() {
 ///	衝突判定の定義
 void Game::CheckIsCollision() {
 
-	//Mathsクラスから衝突判定用のメンバ関数を呼び出し、衝突判定を行う
-	if (Maths::IsCollision(aabb_, segment_)) {
-		//衝突していれば,AABBの色を赤に変える
-		aabbColor_ = RED;
-	}
-	else {
-		//衝突してなければ,AABBの色を白に変える
-		aabbColor_ = WHITE;
-	}
-
 }
 
 /// 更新処理
@@ -167,17 +162,12 @@ void Game::Update()
 #pragma region //描画処理関数の定義
 
 /// デバッグテキストの描画
-void Game::DrawDebugText() 
-{
-	///デバッグテキストの描画
-	ImGui::Begin("DebugWindow");
-	//AABB
-	ImGui::DragFloat3("aabb.min", &aabb_.min.x, 0.01f);
-	ImGui::DragFloat3("aabb.max", &aabb_.max.x, 0.01f);
-	//線分
-	ImGui::DragFloat3("segment.origin", &segment_.origin.x, 0.01f);
-	ImGui::DragFloat3("segment.diff", &segment_.diff.x, 0.01f);
-	ImGui::End();
+void Game::DrawDebugText() {
+
+	ImGui::DragFloat3("obb.center", &obb_.center.x, 0.01f);
+	ImGui::SliderFloat("rotateX", &rotate_.x, 0.0f, 3.0f);
+	ImGui::SliderFloat("rotateY", &rotate_.y, 0.0f, 3.0f);
+	ImGui::SliderFloat("rotateZ", &rotate_.z, 0.0f, 3.0f);
 }
 
 /// グリッド描画処理
@@ -352,6 +342,58 @@ void Game::DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, con
 	Novice::DrawLine(screenVertices[6][0], screenVertices[6][1], screenVertices[7][0], screenVertices[7][1], color);
 }
 
+void Game::DrawOBB(OBB& obb,const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+
+	Matrix4x4 rotateXMatrix = Maths::MakeRotateXMatrix(rotate_.x);
+	Matrix4x4 rotateYMatrix = Maths::MakeRotateYMatrix(rotate_.y);
+	Matrix4x4 rotateZMatrix = Maths::MakeRotateZMatrix(rotate_.z);
+
+	Matrix4x4 rotateMatrix = rotateXMatrix * (rotateYMatrix * rotateZMatrix);
+
+	obb.orientations[0].x = rotateMatrix.m[0][0];
+	obb.orientations[0].y = rotateMatrix.m[0][1];
+	obb.orientations[0].z = rotateMatrix.m[0][2];
+
+	obb.orientations[1].x = rotateMatrix.m[1][0];
+	obb.orientations[1].y = rotateMatrix.m[1][1];
+	obb.orientations[1].z = rotateMatrix.m[1][2];
+
+	obb.orientations[2].x = rotateMatrix.m[2][0];
+	obb.orientations[2].y = rotateMatrix.m[2][1];
+	obb.orientations[2].z = rotateMatrix.m[2][2];
+
+	Vector3 vertices[8];
+	// AABBを構成する8頂点を計算
+	vertices[0] = { -obb.size.x, -obb.size.y, -obb.size.z };
+	vertices[1] = {  obb.size.x, -obb.size.y, -obb.size.z };
+	vertices[2] = { -obb.size.x,  obb.size.y, -obb.size.z };
+	vertices[3] = {  obb.size.x,  obb.size.y, -obb.size.z };
+	vertices[4] = { -obb.size.x, -obb.size.y,  obb.size.z };
+	vertices[5] = {  obb.size.x, -obb.size.y,  obb.size.z };
+	vertices[6] = { -obb.size.x,  obb.size.y,  obb.size.z };
+	vertices[7] = {  obb.size.x,  obb.size.y,  obb.size.z };
+
+	for (int i = 0; i < 8; ++i) {
+		vertices[i] = Transform(vertices[i], rotateMatrix);
+		vertices[i] += obb.center;
+		vertices[i] = Transform(vertices[i], viewProjectionMatrix);
+		vertices[i] = Transform(vertices[i], viewportMatrix);
+	}
+
+	Novice::DrawLine((int)vertices[0].x, (int)vertices[0].y, (int)vertices[1].x, (int)vertices[1].y, color);
+	Novice::DrawLine((int)vertices[1].x, (int)vertices[1].y, (int)vertices[3].x, (int)vertices[3].y, color);
+	Novice::DrawLine((int)vertices[3].x, (int)vertices[3].y, (int)vertices[2].x, (int)vertices[2].y, color);
+	Novice::DrawLine((int)vertices[2].x, (int)vertices[2].y, (int)vertices[0].x, (int)vertices[0].y, color);
+	Novice::DrawLine((int)vertices[4].x, (int)vertices[4].y, (int)vertices[5].x, (int)vertices[5].y, color);
+	Novice::DrawLine((int)vertices[5].x, (int)vertices[5].y, (int)vertices[7].x, (int)vertices[7].y, color);
+	Novice::DrawLine((int)vertices[7].x, (int)vertices[7].y, (int)vertices[6].x, (int)vertices[6].y, color);
+	Novice::DrawLine((int)vertices[6].x, (int)vertices[6].y, (int)vertices[4].x, (int)vertices[4].y, color);
+	Novice::DrawLine((int)vertices[0].x, (int)vertices[0].y, (int)vertices[4].x, (int)vertices[4].y, color);
+	Novice::DrawLine((int)vertices[1].x, (int)vertices[1].y, (int)vertices[5].x, (int)vertices[5].y, color);
+	Novice::DrawLine((int)vertices[2].x, (int)vertices[2].y, (int)vertices[6].x, (int)vertices[6].y, color);
+	Novice::DrawLine((int)vertices[3].x, (int)vertices[3].y, (int)vertices[7].x, (int)vertices[7].y, color);
+}
+
 /// 描画処理(これまで定義した描画処理をDraw関数の中で呼び出す)
 void Game::Draw() 
 {
@@ -359,23 +401,13 @@ void Game::Draw()
 
 	//グリッドを描画する色
 	uint32_t gridColor = GRAY;
-	//線分を描画する色
-	uint32_t lineColor = WHITE;
+	uint32_t sphereColor = WHITE;
+	uint32_t obbColor = WHITE;
 
 	//グリッド線を描画する
-	Game::DrawGrid(world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
-
-	//AABBを描画する
-	Game::DrawAABB(aabb_, world_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), aabbColor_);
-
-	//線分の始点
-	Vector3 start = Transform(Transform(segment_.origin, world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());
-	//線分の終点
-	Vector3 end = Transform(Transform(Add(segment_.origin, segment_.diff), world_->GetViewProjectionMatrix()), camera_->GetViewportMatrix());
-	//線分の描画
-	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), lineColor);
-	
-
+	Game::DrawGrid(camera_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
+	Game::DrawSphere(sphere_,camera_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor);
+	Game::DrawOBB(obb_, camera_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), obbColor);
 }
 
 #pragma endregion

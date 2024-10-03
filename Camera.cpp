@@ -17,6 +17,8 @@ Camera::Camera(Affine affine)
 	//プロジェクション行列
 	projectionMatrix_ = {};
 
+	viewProjectionMatrix_ = {};
+
 	//ビューポート行列
 	viewportMatrix_ = {};
 
@@ -47,6 +49,12 @@ void Camera::MakeProjectionMatrix()
 	projectionMatrix_ = Maths::MakePerspectiveFovMatrix(0.45f, kWindowWidth_ / kWindowHeight_, 0.1f, 100.0f);
 }
 
+void Camera::CreateViewProjectionMatrix() {
+
+	viewProjectionMatrix_ = Multiply(viewMatrix_, projectionMatrix_);
+
+}
+
 /// ビューポート行列の作成
 void Camera::MakeViewportMatrix() 
 {
@@ -59,6 +67,8 @@ Matrix4x4 Camera::GetViewMatrix() { return viewMatrix_; }
 
 /// プロジェクション行列のゲッターの戻り値を設定する
 Matrix4x4 Camera::GetProjectionMatrix() { return projectionMatrix_; }
+
+Matrix4x4 Camera::GetViewProjectionMatrix() { return viewProjectionMatrix_; }
 
 /// ビューポート行列のゲッターの戻り値を設定する
 Matrix4x4 Camera::GetViewportMatrix() { return viewportMatrix_; }

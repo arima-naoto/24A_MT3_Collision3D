@@ -86,6 +86,30 @@ Vector3 Maths::Cross(const Vector3& v1, const Vector3& v2)
 	return resultCross;
 }
 
+Vector3 Maths::MultiplyMatrixVector(const Matrix4x4& mat, const Vector3& vec) {
+	Vector3 result;
+
+	// ベクトルの拡張 (w = 1.0)
+	float x = vec.x * mat.m[0][0] + vec.y * mat.m[1][0] + vec.z * mat.m[2][0] + 1.0f * mat.m[3][0];
+	float y = vec.x * mat.m[0][1] + vec.y * mat.m[1][1] + vec.z * mat.m[2][1] + 1.0f * mat.m[3][1];
+	float z = vec.x * mat.m[0][2] + vec.y * mat.m[1][2] + vec.z * mat.m[2][2] + 1.0f * mat.m[3][2];
+	float w = vec.x * mat.m[0][3] + vec.y * mat.m[1][3] + vec.z * mat.m[2][3] + 1.0f * mat.m[3][3];
+
+	// w成分で正規化
+	if (w != 0.0f) {
+		result.x = x / w;
+		result.y = y / w;
+		result.z = z / w;
+	}
+	else {
+		result.x = x;
+		result.y = y;
+		result.z = z;
+	}
+
+	return result;
+}
+
 #pragma endregion
 
 #pragma region 4x4行列メンバ関数の定義
@@ -327,31 +351,7 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 	return result;
 }
 
-///AABBと線分の衝突判定
-bool Maths::IsCollision(const AABB& aabb, const Segment& segment) {
+Vector3 operator+(const Vector3& v1, const Vector3& v2) { return Maths::Add(v1, v2); }
 
-	// 各方向の t 値の計算
-	float tNearX = (aabb.min.x - segment.origin.x) / segment.diff.x;
-	float tFarX = (aabb.max.x - segment.origin.x) / segment.diff.x;
-	if (tNearX > tFarX) std::swap(tNearX, tFarX);
-
-	float tNearY = (aabb.min.y - segment.origin.y) / segment.diff.y;
-	float tFarY = (aabb.max.y - segment.origin.y) / segment.diff.y;
-	if (tNearY > tFarY) std::swap(tNearY, tFarY);
-
-	float tNearZ = (aabb.min.z - segment.origin.z) / segment.diff.z;
-	float tFarZ = (aabb.max.z - segment.origin.z) / segment.diff.z;
-	if (tNearZ > tFarZ) std::swap(tNearZ, tFarZ);
-
-	// AABBとの衝突点(貫通点)の t が小さい方
-	float tmin = std::max(std::max(tNearX, tNearY), tNearZ);
-	// AABBとの衝突点(貫通点)の t が大きい方
-	float tmax = std::min(std::min(tFarX, tFarY), tFarZ);
-
-	// tmin が tmax 以下で、かつ tmax が0から1の間にあるかどうかをチェック
-	return (tmin <= tmax) && (tmax >= 0) && (tmin <= 1);
-
-}
-
-
+Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) { return Maths::Multiply(m1, m2); }
 

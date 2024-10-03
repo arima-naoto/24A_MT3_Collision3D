@@ -1,5 +1,18 @@
 #pragma once
-#include "Vector3.h"
+
+struct Vector3 {
+	float x;
+	float y;
+	float z;
+
+	Vector3 operator+=(const Vector3& v) {
+		x += v.x;
+		y += v.y;
+		z += v.z;
+		return *this;
+	}
+
+};
 
 /// アフィン構造体
 struct Affine
@@ -39,5 +52,13 @@ struct AABB {
 
 	Vector3 min;//最小店
 	Vector3 max;//最大店
+
+};
+
+struct OBB {
+
+	Vector3 center;
+	Vector3 orientations[3];
+	Vector3 size;
 
 };

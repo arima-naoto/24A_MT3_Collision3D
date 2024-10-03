@@ -55,6 +55,8 @@ public://メンバ関数
 	///AABB描画メンバ関数
 	void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
+	void DrawOBB(OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
 	/// 描画処理
 	void Draw();
 
@@ -76,20 +78,14 @@ private://メンバ変数
 	//カメラクラス
 	Camera* camera_;
 
-	///AABB構造体
-	AABB aabb_;
-
-	//線分構造体
-	Segment segment_;
-
-	///AABBを描画する色
-	uint32_t aabbColor_;
-
 	int prevMouseX_;
 	int prevMouseY_;
 
 	int mouseX_;
 	int mouseY_;
 
+	Vector3 rotate_;
+	OBB obb_;
+	Sphere sphere_;
 };
 
