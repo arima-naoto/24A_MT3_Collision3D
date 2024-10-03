@@ -87,10 +87,13 @@ public://メンバ関数
 	static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
 	///AABBと球体の衝突判定
-	static bool IsCollision(const OBB& obb, const Sphere&sphere);
+	static bool IsCollision(const AABB& aabb, const Sphere&sphere);
 
 };
 
 Vector3 operator+(const Vector3& v1, const Vector3& v2);
+Vector3 operator-(const Vector3& v1, const Vector3& v2);
 
 Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2);
+
+Vector3 operator-(const Vector3& v);

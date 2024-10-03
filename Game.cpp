@@ -53,6 +53,8 @@ Game::Game()
 	mouseX_ = 0;
 	mouseY_ = 0;
 
+	obbColor_ = WHITE;
+
 #pragma endregion
 }
 
@@ -142,6 +144,22 @@ void Game::CameraController() {
 
 ///	衝突判定の定義
 void Game::CheckIsCollision() {
+	
+	obbWorldInverse_ = Maths::Inverse(worldMatrix_);
+
+	Vector3 centerInOBBLocalSpace =
+		Transform(sphere_.center, obbWorldInverse_);
+
+	AABB aabbOBBLocal{ .min = -obb_.size,.max = obb_.size };
+
+	Sphere sphereOBBLocal{ centerInOBBLocalSpace,sphere_.radius };
+
+	if (IsCollision(aabbOBBLocal, sphereOBBLocal)) {
+		obbColor_ = RED;
+	}
+	else {
+		obbColor_ = WHITE;
+	}
 
 }
 
@@ -165,9 +183,9 @@ void Game::Update()
 void Game::DrawDebugText() {
 
 	ImGui::DragFloat3("obb.center", &obb_.center.x, 0.01f);
-	ImGui::SliderFloat("rotateX", &rotate_.x, 0.0f, 3.0f);
-	ImGui::SliderFloat("rotateY", &rotate_.y, 0.0f, 3.0f);
-	ImGui::SliderFloat("rotateZ", &rotate_.z, 0.0f, 3.0f);
+	ImGui::SliderFloat("rotateX", &rotate_.x, 0.0f, 1.59f);
+	ImGui::SliderFloat("rotateY", &rotate_.y, 0.0f, 1.59f);
+	ImGui::SliderFloat("rotateZ", &rotate_.z, 0.0f, 1.59f);
 }
 
 /// グリッド描画処理
@@ -374,8 +392,12 @@ void Game::DrawOBB(OBB& obb,const Matrix4x4& viewProjectionMatrix, const Matrix4
 	vertices[7] = {  obb.size.x,  obb.size.y,  obb.size.z };
 
 	for (int i = 0; i < 8; ++i) {
-		vertices[i] = Transform(vertices[i], rotateMatrix);
-		vertices[i] += obb.center;
+
+		Matrix4x4 translateMatrix = Maths::MakeTranslateMatrix(obb.center);
+		
+		worldMatrix_ = rotateMatrix * translateMatrix;
+
+		vertices[i] = Transform(vertices[i], worldMatrix_);
 		vertices[i] = Transform(vertices[i], viewProjectionMatrix);
 		vertices[i] = Transform(vertices[i], viewportMatrix);
 	}
@@ -402,12 +424,11 @@ void Game::Draw()
 	//グリッドを描画する色
 	uint32_t gridColor = GRAY;
 	uint32_t sphereColor = WHITE;
-	uint32_t obbColor = WHITE;
-
+	
 	//グリッド線を描画する
 	Game::DrawGrid(camera_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), gridColor);
 	Game::DrawSphere(sphere_,camera_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), sphereColor);
-	Game::DrawOBB(obb_, camera_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), obbColor);
+	Game::DrawOBB(obb_, camera_->GetViewProjectionMatrix(), camera_->GetViewportMatrix(), obbColor_);
 }
 
 #pragma endregion

@@ -87,5 +87,11 @@ private://メンバ変数
 	Vector3 rotate_;
 	OBB obb_;
 	Sphere sphere_;
+
+	Matrix4x4 worldMatrix_ = {};
+	Matrix4x4 obbWorldInverse_ = {};
+
+	uint32_t obbColor_;
+
 };
 

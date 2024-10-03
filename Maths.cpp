@@ -4,6 +4,8 @@
 #include <algorithm>
 using namespace std;
 
+#include "imgui.h"
+
 // 関数cotの作成
 float Maths::cot(float x)
 {
@@ -351,7 +353,24 @@ Vector3 Maths::Transform(const Vector3& vector, const Matrix4x4& matrix)
 	return result;
 }
 
+bool Maths::IsCollision(const AABB& aabb, const Sphere& sphere) {
+
+	// 最近接点を求める
+	Vector3 closestPoint;
+	closestPoint.x = std::clamp(sphere.center.x, aabb.min.x, aabb.max.x);
+	closestPoint.y = std::clamp(sphere.center.y, aabb.min.y, aabb.max.y);
+	closestPoint.z = std::clamp(sphere.center.z, aabb.min.z, aabb.max.z);
+
+	// 最近接点と球の中心との距離を求める
+	float distance = Maths::Length(closestPoint - sphere.center);
+
+	// 距離が半径よりも小さいかどうかを判定
+	return distance <= sphere.radius
+}
+
 Vector3 operator+(const Vector3& v1, const Vector3& v2) { return Maths::Add(v1, v2); }
+Vector3 operator-(const Vector3& v1, const Vector3& v2) { return Maths::Subtract(v1, v2); }
 
 Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2) { return Maths::Multiply(m1, m2); }
 
+Vector3 operator-(const Vector3& v) { return Vector3(-v.x, -v.y, -v.z); }
