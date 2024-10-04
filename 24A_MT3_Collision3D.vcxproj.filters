@@ -38,6 +38,42 @@
     <ClCompile Include="C:\KamataEngine\DirectXGame\base\StringUtility.cpp">
       <Filter>KamataEngine\Source</Filter>
     </ClCompile>
+    <ClCompile Include="project\Game.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="project\gameObject\Bezier.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="project\gameObject\CatmullRom.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="project\gameObject\Grid.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="project\gameObject\OBB.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="project\gameObject\Sphere.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="project\math\Arithmetic.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="project\math\Calculator.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="project\math\Pipeline\Rendering.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="project\view\Camera.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="project\view\World.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="IsCollision.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\KamataEngine\DirectXGame\audio\Audio.h">
@@ -111,5 +147,18 @@
     <ClInclude Include="C:\KamataEngine\DirectXGame\base\StringUtility.h">
       <Filter>KamataEngine\Include</Filter>
     </ClInclude>
+    <ClInclude Include="project\Game.h" />
+    <ClInclude Include="project\gameObject\Bezier.h" />
+    <ClInclude Include="project\gameObject\CatmullRom.h" />
+    <ClInclude Include="project\gameObject\Grid.h" />
+    <ClInclude Include="project\gameObject\OBB.h" />
+    <ClInclude Include="project\gameObject\Sphere.h" />
+    <ClInclude Include="project\math\Arithmetic.h" />
+    <ClInclude Include="project\math\Calculator.h" />
+    <ClInclude Include="project\math\Pipeline\Rendering.h" />
+    <ClInclude Include="project\math\Structure.h" />
+    <ClInclude Include="project\view\Camera.h" />
+    <ClInclude Include="project\view\World.h" />
+    <ClInclude Include="IsCollision.h" />
   </ItemGroup>
 </Project>
