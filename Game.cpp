@@ -229,7 +229,7 @@ void Game::DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& view
 /// 球体描画処理
 void Game::DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) 
 {
-	const uint32_t kSubdivision = 16; // 分割数
+	const uint32_t kSubdivision = 10; // 分割数
 	const float kLonEvery = (2.0f * float(M_PI)) / kSubdivision; // 経度分割1つ分の角度
 	const float kLatEvery = float(M_PI) / kSubdivision; // 緯度分割1つ分の角度
 
