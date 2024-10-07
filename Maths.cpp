@@ -1,4 +1,4 @@
-﻿#define  NOMINMAX
+#define  NOMINMAX
 #include "Maths.h"
 #include <Novice.h>
 #include <algorithm>
@@ -365,7 +365,7 @@ bool Maths::IsCollision(const AABB& aabb, const Sphere& sphere) {
 	float distance = Maths::Length(closestPoint - sphere.center);
 
 	// 距離が半径よりも小さいかどうかを判定
-	return distance <= sphere.radius
+	return distance <= sphere.radius;
 }
 
 Vector3 operator+(const Vector3& v1, const Vector3& v2) { return Maths::Add(v1, v2); }
