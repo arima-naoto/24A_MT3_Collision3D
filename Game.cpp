@@ -180,12 +180,19 @@ void Game::Update()
 #pragma region //描画処理関数の定義
 
 /// デバッグテキストの描画
-void Game::DrawDebugText() {
+void Game::DrawDebugText(const char* name) {
 
 	ImGui::DragFloat3("obb.center", &obb_.center.x, 0.01f);
-	ImGui::SliderFloat("rotateX", &rotate_.x, 0.0f, 1.59f);
-	ImGui::SliderFloat("rotateY", &rotate_.y, 0.0f, 1.59f);
-	ImGui::SliderFloat("rotateZ", &rotate_.z, 0.0f, 1.59f);
+
+	const float minRotate = -88.0f;
+	const float maxRotate = 88.0f;
+	
+	std::string imguiLabel = std::string(name) + "X";
+	ImGui::SliderAngle(imguiLabel.c_str(), &rotate_.x, minRotate, maxRotate);
+	imguiLabel = std::string(name) + "Y";
+	ImGui::SliderAngle(imguiLabel.c_str(), &rotate_.y, minRotate, maxRotate);
+	imguiLabel = std::string(name) + "Z";
+	ImGui::SliderAngle(imguiLabel.c_str(), &rotate_.z, minRotate, maxRotate);
 }
 
 /// グリッド描画処理
@@ -419,7 +426,8 @@ void Game::DrawOBB(OBB& obb,const Matrix4x4& viewProjectionMatrix, const Matrix4
 /// 描画処理(これまで定義した描画処理をDraw関数の中で呼び出す)
 void Game::Draw() 
 {
-	Game::DrawDebugText();
+	std::string label = "rotate";
+	Game::DrawDebugText(label.c_str());
 
 	//グリッドを描画する色
 	uint32_t gridColor = GRAY;

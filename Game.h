@@ -3,6 +3,8 @@
 #include "Camera.h"
 #include "Maths.h"
 
+#include "iostream"
+
 /// <summary>
 /// Mathsクラスを継承したGameクラスを作成
 /// </summary>
@@ -38,7 +40,7 @@ public://メンバ関数
 	void Update();
 
 	/// デバッグテキスト描画メンバ関数
-	void DrawDebugText();
+	void DrawDebugText(const char* name);
 
 	/// グリッド線描画メンバ関数
 	void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix,uint32_t color);
