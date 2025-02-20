@@ -184,15 +184,14 @@ void Game::DrawDebugText(const char* name) {
 
 	ImGui::DragFloat3("obb.center", &obb_.center.x, 0.01f);
 
-	const float minRotate = -88.0f;
-	const float maxRotate = 88.0f;
+	const float limitRotate = 180.0f;
 	
 	std::string imguiLabel = std::string(name) + "X";
-	ImGui::SliderAngle(imguiLabel.c_str(), &rotate_.x, minRotate, maxRotate);
+	ImGui::SliderAngle(imguiLabel.c_str(), &rotate_.x, -limitRotate, limitRotate);
 	imguiLabel = std::string(name) + "Y";
-	ImGui::SliderAngle(imguiLabel.c_str(), &rotate_.y, minRotate, maxRotate);
+	ImGui::SliderAngle(imguiLabel.c_str(), &rotate_.y, -limitRotate, limitRotate);
 	imguiLabel = std::string(name) + "Z";
-	ImGui::SliderAngle(imguiLabel.c_str(), &rotate_.z, minRotate, maxRotate);
+	ImGui::SliderAngle(imguiLabel.c_str(), &rotate_.z, -limitRotate, limitRotate);
 }
 
 /// グリッド描画処理
